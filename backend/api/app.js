@@ -11,13 +11,20 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var shippingsRouter = require('./routes/shippings');
+var shippingstatusRouter = require('./routes/shippingstatus');
 var rolesRouter = require('./routes/roles');
 var usersRouter = require('./routes/users');
+var imagesRouter = require('./routes/images');
 
 var app = express();
-var cors = require('cors');
 
+var cors = require('cors');
 app.use(cors());
+
+const port = process.env.PORT || 3000;
+app.listen(port, function () {
+  console.log('listening on port ' + port + '!');
+});
 
 /*
 //CORS
@@ -43,8 +50,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/shippings', shippingsRouter);
+app.use('/shippingstatus', shippingstatusRouter);
 app.use('/roles', rolesRouter);
 app.use('/users', usersRouter);
+app.use('/images', imagesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -64,7 +73,7 @@ app.use(function(err, req, res, next) {
 
 if (process.env.NODE_ENV=="development" && (/true/).test(process.env.INIT_DB)){
   db.sequelize.sync(
-    //{ force: true }
+    { force: true }
   ).then(() => {
     console.log("Drop and re-sync db.");
   });
@@ -72,3 +81,4 @@ if (process.env.NODE_ENV=="development" && (/true/).test(process.env.INIT_DB)){
 }
 
 module.exports = app;
+

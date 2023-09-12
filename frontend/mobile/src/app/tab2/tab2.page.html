@@ -1,0 +1,40 @@
+<ion-header>
+	<ion-toolbar>
+		<ion-title>Repartidor</ion-title>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content>
+	<ion-item *ngIf="!hasEnvios()">
+		<ion-label>
+		  <h3>No hay envios!!!</h3>
+		</ion-label>
+	</ion-item>
+	<ng-container *ngIf="hasEnvios()">
+		<div id="envios" *ngFor="let shipping of shippings">
+			<ion-item (click)="openShipping(shipping)">
+				<ion-label>
+				<p class="title"><b>Envio #{{shipping.id}}</b></p>
+				<p >Direccion origen: <b>{{shipping.requestaddress}}</b></p>
+				<p >Ciudad origen: <b>{{displayCity(shipping.requestcityid)}}</b></p>
+				<p >Direccion destino: <b>{{shipping.requestaddress}}</b></p>
+				<p >Ciudad destino: <b>{{displayCity(shipping.destinationcityid)}}</b></p>
+				<p>Estatus:<b 
+					[class.statusCreated]="statusCreated(shipping.statusid)" 
+					[class.statusAccepted]="statusAccepted(shipping.statusid)" 
+					[class.statusOnDelivery]="statusOnDelivery(shipping.statusid)" 
+					[class.statusDelivered]="statusDelivered(shipping.statusid)" 
+					[class.statusCancel]="statusCancel(shipping.statusid)" 
+					>{{displayStatus(shipping.statusid)}}</b></p>
+				</ion-label>
+			</ion-item>
+			</div>
+	</ng-container>
+	<div>
+		<ion-fab slot="fixed" vertical="bottom" horizontal="end" style="margin:25px;">
+			<ion-fab-button (click)="searchNew()">
+				<ion-icon  name="search-outline"></ion-icon>
+			</ion-fab-button>
+		</ion-fab>		
+	</div>
+</ion-content>

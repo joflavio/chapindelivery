@@ -1,0 +1,44 @@
+ion-content {
+	--padding-top: 10%;
+	--padding-start: 5%;
+	--padding-end: 5%;
+}
+
+.input-group {
+	border: 1px solid black;
+	background: #fff;
+	border-radius: 10px;
+	overflow: hidden;
+	margin-bottom: 15px;
+}
+
+.errors {
+	font-size: small;
+	color: #fff;
+	background: var(--ion-color-danger);
+	padding-left: 15px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.avatar{
+    margin: auto;
+    margin-bottom: 30px;
+    //margin-top: 10%;
+	position: relative;
+    width: 150px;
+    height: 150px;
+ }
+
+ ion-avatar {
+    // make the icon stay on the right
+    text-align: right;
+}
+
+#camera-icon {
+	font-size: 24px;
+	//position: absolute;
+	//bottom: 1px; // tweak this
+	//right: 5px; // tweak this
+}
+ 

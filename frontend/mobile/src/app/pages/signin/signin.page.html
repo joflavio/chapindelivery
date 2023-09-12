@@ -1,0 +1,51 @@
+<ion-header>
+	<ion-toolbar color="primary">
+		<ion-title>Sign in</ion-title>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content>
+	<form (ngSubmit)="signin()" [formGroup]="credentials">
+		<div class="input-group">
+			<ion-item>
+				<ion-input type="email" label="Correo electronico" labelPlacement="floating" formControlName="email"></ion-input>
+			</ion-item>
+			<div *ngIf="credentials.get('email')?.invalid && (credentials.get('email')?.dirty || credentials.get('email')?.touched )" class="errors">
+				<span *ngIf="credentials.get('email')?.errors?.['required']">El correo electronico es requerido</span>
+				<span *ngIf="credentials.get('email')?.errors?.['email']">El correo electronico es invalido</span>
+			</div>
+			<ion-item>
+				<ion-input type="text" label="Nombres" labelPlacement="floating" formControlName="firstname"></ion-input>
+			</ion-item>
+			<div *ngIf="credentials.get('firstname')?.invalid && (credentials.get('firstname')?.dirty || credentials.get('firstname')?.touched )" class="errors">
+				<span *ngIf="credentials.get('firstname')?.errors?.['required']">Nombres es requerido</span>				
+			</div>
+			<ion-item>
+				<ion-input type="text" label="Apellidos" labelPlacement="floating"  formControlName="lastname"></ion-input>
+			</ion-item>
+			<div *ngIf="credentials.get('lastname')?.invalid && (credentials.get('lastname')?.dirty || credentials.get('lastname')?.touched )" class="errors">
+				<span *ngIf="credentials.get('lastname')?.errors?.['required']">Apellidos es requerido</span>				
+			</div>
+			<ion-item>
+				<ion-input type="password" label="Contraseña" labelPlacement="floating" formControlName="password"></ion-input>
+			</ion-item>
+			<div *ngIf="credentials.get('password')?.invalid && (credentials.get('password')?.dirty || credentials.get('password')?.touched )" class="errors">
+				<span *ngIf="credentials.get('password')?.errors?.['required']">Contraseña es requirida</span>
+				<span *ngIf="credentials.get('password')?.errors?.['minlength']">Contraseña debe ser mayor a 6 caracteres</span>
+			</div>
+			<ion-item>
+				<ion-input type="password" label="Confirmacion de Contraseña" labelPlacement="floating" formControlName="password2"></ion-input>
+			</ion-item>
+			<div *ngIf="credentials.get('password2')?.invalid && (credentials.get('password2')?.dirty || credentials.get('password2')?.touched )" class="errors">
+				<span *ngIf="credentials.get('password2')?.errors?.['required']">Confirmacion de contraseña es requirida</span>
+				<span *ngIf="credentials.get('password2')?.errors?.['minlength']">Contraseña debe ser mayor a 6 caracteres</span>
+			</div>
+			<div class="errors" *ngIf="!passwordVerification()">
+			<span   >Contraseñas no son iguales!!</span>
+			</div>
+		</div>
+
+		<ion-button type="submit" expand="block" [disabled]="!credentials.valid">Sign in</ion-button>
+		<ion-button type="button" expand="block" fill="clear" (click)="gologin()"> <ion-icon name="caret-back-outline"></ion-icon>&nbsp;Retorno a Login</ion-button>
+	</form>
+</ion-content>

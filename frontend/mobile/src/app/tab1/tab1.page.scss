@@ -1,0 +1,47 @@
+ion-content {
+	--padding-top: 10%;
+	--padding-start: 5%;
+	--padding-end: 5%;
+}
+
+p b{
+	font-size:16px;
+}
+
+.requester{
+	color:CornflowerBlue;
+}
+
+.delivery{
+	color:Chocolate;
+}
+
+.statusCreated{
+	font-size: 16px;
+	color:cyan;
+}
+
+.statusAccepted{
+	font-size: 16px;
+	color:darkcyan;
+}
+
+.statusOnDelivery{
+	font-size: 16px;
+	color:blue;
+}
+
+.statusDelivered{
+	font-size: 16px;
+	color:green;
+}
+
+
+.statusCancel{
+	font-size: 16px;
+	color:red;
+}
+
+.title{
+	font-size:25px;
+}

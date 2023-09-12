@@ -44,20 +44,16 @@ router.post('/login', async function(req, res, next) {
         },
         process.env.TOKEN_KEY,
         {
-          expiresIn: "2h",
+          expiresIn: "24h",
         }
       );
-
-      // save user token
-      user.token = token;
-      
-      // user
+      user.password='';
       res.header('Access-Control-Allow-Credentials', true);
       res.status(200).send({'user': user, 'token': token});
       return;
     }
 
-    res.status(400).send({'error': 'Verificar correo o contraseña!'});
+    res.status(404).send({'error': 'Verificar correo o contraseña!'});
   } catch (err) {
     console.log(err);
   }

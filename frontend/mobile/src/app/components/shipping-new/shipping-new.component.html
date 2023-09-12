@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button  [strong]="true" (click)="cancel()">Cancelar</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="confirm()" [strong]="true" [disabled]="!shipping.valid" >Aceptar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+	<form (ngSubmit)="newShipping()" [formGroup]="shipping">
+		<div class="input-group">
+			<h2>Envio nuevo</h2>
+			<ion-item>
+				<ion-input type="text" label="Direccion origen" labelPlacement="floating"  formControlName="requesterAddress" ></ion-input>
+			</ion-item>
+			<div *ngIf="shipping.get('requesterAddress')?.invalid && (shipping.get('requesterAddress')?.dirty || shipping.get('requesterAddress')?.touched )" class="errors">
+				<span *ngIf="shipping.get('requesterAddress')?.errors?.['required']">Direccion de origen es requerido</span>
+				<span *ngIf="shipping.get('requesterAddress')?.errors?.['minlength']">Direccion de origen debe ser mayor a 20 caracteres</span>
+			</div>
+			<ion-item>
+				<ion-select label="Ciudad origen" label-placement="floating" formControlName="requesterCity">
+				  <ion-select-option value="1">Guatemala</ion-select-option>
+				  <ion-select-option value="2" >San Jose Pinula</ion-select-option>
+				</ion-select>
+			  </ion-item>
+			<ion-item>
+			<ion-input type="text" label="Direccion destino" labelPlacement="floating"  formControlName="destinationAddress" ></ion-input>
+			</ion-item>
+			<div *ngIf="shipping.get('destinationAddress')?.invalid && (shipping.get('destinationAddress')?.dirty || shipping.get('destinationAddress')?.touched )" class="errors">
+				<span *ngIf="shipping.get('destinationAddress')?.errors?.['required']">Direccion destino es requerido</span>
+				<span *ngIf="shipping.get('destinationAddress')?.errors?.['minlength']">Direccion destino debe ser mayor a 20 caracteres</span>
+			</div>
+			<ion-item>
+				<ion-select label="Ciudad destino" label-placement="floating" formControlName="destinationCity">
+				  <ion-select-option value="1">Guatemala</ion-select-option>
+				  <ion-select-option value="2">San Jose Pinula</ion-select-option>
+				</ion-select>
+			  </ion-item>
+			<ion-item>
+			<ion-input type="number" label="Monto a pagar" labelPlacement="floating"  formControlName="totalAmount" placeholder="0.00" inputmode="decimal" pattern="[0-9]*" ></ion-input>
+			</ion-item>
+			<div *ngIf="shipping.get('totalAmount')?.invalid && (shipping.get('totalAmount')?.dirty || shipping.get('totalAmount')?.touched )" class="errors">
+				<span *ngIf="shipping.get('totalAmount')?.errors?.['required']">El monto a pagar es requerido</span>
+			</div>
+	
+		</div>
+	</form>
+</ion-content>

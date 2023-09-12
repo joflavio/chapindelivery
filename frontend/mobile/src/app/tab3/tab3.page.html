@@ -1,0 +1,30 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Perfil
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+	<div>
+		<ion-avatar class="avatar">
+			<ion-img alt="this._user.email" [src]="loadAvatar()" ></ion-img>
+			<ion-icon name="camera-outline" id="camera-icon" (click)="launchCamera()"></ion-icon>
+		</ion-avatar>
+	</div>
+	<div class="input-group">
+		<ion-item>
+			<ion-input [(ngModel)]="this._user.email" type="email"  label="Correo electronico" labelPlacement="floating" [disabled]="true" ></ion-input>
+		</ion-item>
+		<ion-item>
+			<ion-input [(ngModel)]="this._user.firstname" type="text" label="Nombres" labelPlacement="floating" ></ion-input>
+		</ion-item>
+		<ion-item>
+			<ion-input [(ngModel)]="this._user.lastname" type="text" label="Apellidos" labelPlacement="floating"  ></ion-input>
+		</ion-item>
+	</div>
+	<ion-button type="submit" expand="block" >Grabar</ion-button>
+    <ion-button expand="block" (click)="this.logout()">Logout</ion-button>
+
+	
+</ion-content>

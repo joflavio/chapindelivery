@@ -1,0 +1,30 @@
+<ion-header>
+	<ion-toolbar color="primary">
+		<ion-title>Login</ion-title>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content>
+	<form (ngSubmit)="login()" [formGroup]="credentials">
+		<div class="input-group">
+			<ion-item>
+				<ion-input type="email" label="Correo electronico" labelPlacement="floating"  formControlName="email" ></ion-input>
+			</ion-item>
+			<div *ngIf="credentials.get('email')?.invalid && (credentials.get('email')?.dirty || credentials.get('email')?.touched )" class="errors">
+				<span *ngIf="credentials.get('email')?.errors?.['required']">El correo electronico es requerido</span>
+				<span *ngIf="credentials.get('email')?.errors?.['email']">El correo electronico es invalido</span>
+
+			</div>
+			<ion-item>
+				<ion-input type="password" label="Contraseña" labelPlacement="floating" formControlName="password"></ion-input>
+			</ion-item>
+			<div *ngIf="credentials.get('password')?.invalid && (credentials.get('password')?.dirty || credentials.get('password')?.touched )" class="errors">
+				<span *ngIf="credentials.get('password')?.errors?.['required']">Contraseña es requirida</span>
+				<span *ngIf="credentials.get('password')?.errors?.['minlength']">Contraseña debe ser mayor a 6 caracteres</span>
+			</div>
+		</div>
+
+		<ion-button type="submit" expand="block" [disabled]="!credentials.valid">Ingresar</ion-button>
+		<ion-button type="button" expand="block" fill="clear" (click)="goSignin()">Registrarme...</ion-button>
+	</form>
+</ion-content>

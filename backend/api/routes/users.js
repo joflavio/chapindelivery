@@ -43,7 +43,6 @@ router.post('/', auth, async function(req, res, next) {
         return;
     }
 
-    console.log(shipping);
     if (shipping)
         res.status(200).send(shipping);
     else 

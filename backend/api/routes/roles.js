@@ -15,7 +15,7 @@ router.get('/', auth, async function(req, res, next) {
 
 
 router.get('/:id', auth, async function(req, res, next) {
-    console.log(req.params.id);
+    //console.log(req.params.id);
     const id=req.params.id;
     if (isNaN(id))
         return res.status(404).send("No a valid rol number!");

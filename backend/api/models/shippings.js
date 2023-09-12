@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
           key: 'id'
         }
     },
-
+    acceptancedate: DataTypes.DATE,
     receiveddate: DataTypes.DATE,
     receivedimageid: {
         type: DataTypes.INTEGER,
@@ -88,7 +88,10 @@ module.exports = (sequelize, DataTypes) => {
           key: 'id'
         }
     },
-
+    totalAmount: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull:false
+    },
     canceldate: DataTypes.DATE,
     cancelcomments: DataTypes.STRING(255),
 
