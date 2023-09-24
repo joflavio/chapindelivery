@@ -1,0 +1,32 @@
+body{
+	background: #fff;
+}
+ion-content {
+	--padding-top: 10%;
+	--padding-start: 10%;
+	--padding-end: 10%;
+}
+ion-thumbnail {
+	--size: 200px;
+	--border-radius: 14px;
+	margin: auto;
+	width: 100%;
+	margin-bottom: 15px;
+	margin-top: 15px;
+  }
+
+.main-buttons{
+	background: #fff;
+	overflow: hidden;
+	display:flex; 
+	justify-content: space-evenly; 
+	padding-top: 15px; 
+}
+.errors {
+	font-size: small;
+	color: #fff;
+	background: var(--ion-color-danger);
+	padding-left: 15px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}

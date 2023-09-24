@@ -1,3 +1,6 @@
+body{
+	background: #fff;
+}
 ion-content {
 	--padding-top: 10%;
 	--padding-start: 10%;
@@ -20,3 +23,20 @@ ion-content {
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+
+.main-buttons{
+	background: black;
+	overflow: hidden;
+	display:flex; 
+	justify-content: space-evenly; 
+	padding-top: 15px; 
+}
+
+ion-thumbnail {
+	--size: 200px;
+	--border-radius: 14px;
+	margin: auto;
+	width: 100%;
+	margin-bottom: 15px;
+	margin-top: 15px;
+  }

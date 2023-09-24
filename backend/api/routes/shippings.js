@@ -1,9 +1,16 @@
 var express = require('express');
 var router = express.Router();
+var path = require('path');
+var multer = require('multer');
+var sharp = require("sharp");
 
+const config = process.env;
+const storage = multer.memoryStorage();  
+const upload = multer({ storage });
 
 const models = require("../models/index");
 const auth = require("../middleware/auth");
+const { error } = require('console');
 
 router.get('/', auth, async function(req, res, next) {
     try{
@@ -130,13 +137,13 @@ router.put('/', auth, async function(req, res, next) {
         requestcomments: shipping.requestcomments,
         destinationaddress: shipping.destinationaddress,
         destinationcityid: shipping.destinationcityid,
-        acceptancedate: (!shipping.acceptancedate && shipping.statusid==2)?Date.now():shipping.canceldate,
-        receiveddate: shipping.receiveddate,
+        acceptancedate: (!shipping.acceptancedate && shipping.statusid==2)?Date.now():shipping.acceptancedate,
+        receiveddate: (!shipping.receiveddate && shipping.statusid==3)?Date.now():shipping.receiveddate,
         receivedimageid: shipping.receivedimageid,
         deliveryuserid: shipping.deliveryuserid,
         deliveryrating: shipping.deliveryrating,
         delivercomments: shipping.delivercomments, 
-        delivereddate: shipping.delivereddate,
+        delivereddate: (!shipping.delivereddate && shipping.statusid==4)?Date.now():shipping.delivereddate,
         deliveredimageid: shipping.deliveredimageid, 
         statusid: shipping.statusid,
         canceldate: (!shipping.canceldate && shipping.statusid==5)?Date.now():shipping.canceldate,
@@ -156,29 +163,54 @@ router.put('/', auth, async function(req, res, next) {
     
 });
 
-router.post('/', auth, async function(req, res, next) {
-    const _new = req.body.shipping;
-    var shipping; 
+router.post('/', auth, upload.single('file'), async function(req, res, next) {
+    
+    const { buffer, originalname } = req.file;
+    const { shipping } = req.body;
+    const _new=JSON.parse(shipping);
+
+    const fileName=`img-${ Date.now()}-${Math.round(Math.random() * 1E9)}.jpg`;
+    
+    await sharp(buffer)
+    .jpeg({ mozjpeg: true, quality: 50 })
+    .resize({ width: 720 })
+    .toFile(config.IMAGE_FOLDER + fileName);
+    
+    var _shipping; 
     try{
-        shipping = await models.Shippings.create({ 
-        requestuserid: _new.requestuserid,
-        requestdate: Date.now(), 
-        requestaddress: _new.requestaddress,
-        requestcityid: _new.requestcityid,  
-        destinationaddress: _new.destinationaddress,
-        destinationcityid: _new.destinationcityid,
-        totalAmount: _new.totalAmount,
-        statusid: '1'
-    });
+        const img = await models.File.create({
+            originalfilename: originalname,
+            path: config.IMAGE_FOLDER,
+            filename: fileName,
+            uploaddatetime: Date.now(),
+            filetypeid: '1',
+            statusid: '1'
+        });
+        console.log(img);
+        
+        if (img){
+            _shipping = await models.Shippings.create({ 
+                shippingimageid: img.id,   
+                requestuserid: _new.requestuserid,
+                requestdate: Date.now(), 
+                requestaddress: _new.requestaddress,
+                requestcityid: _new.requestcityid,  
+                destinationaddress: _new.destinationaddress,
+                destinationcityid: _new.destinationcityid,
+                totalAmount: _new.totalAmount,
+                statusid: '1'
+            });
+        } else {
+            throw new error('Image error');
+        }
     } catch (err)
     {
-        console.log(err);
-        res.status(500).send('Database error!');
+        res.status(500).send(err);
         return;
     }
-    console.log(req);
-    if (shipping)
-        res.status(200).send();
+    
+    if (_shipping)
+        res.status(200).send(_shipping);
     else 
         res.status(500).send('Shipping was not created!');
     return; 

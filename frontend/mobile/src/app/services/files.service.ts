@@ -14,13 +14,13 @@ export class FilesService {
 		this.loadToken();
 	}
 
-	loadToken(){	
+	private loadToken(){	
 		const token = localStorage.getItem('myToken');
 		if (token)
 			this.token=token;
 	}
 
-	uploadImage(imageData:any, email:any, filetypeid:any): Observable<any> {
+	uploadUserImage(imageData:any, email:any, fileName:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
 			.set('x-access-token', this.token)
@@ -28,7 +28,8 @@ export class FilesService {
       const formData = new FormData();
       formData.append('file', imageData);
       formData.append('email', email);
-      formData.append('filetypeid', filetypeid);
+      //formData.append('filetypeid', filetypeid);
+	  formData.append('filename', fileName);
       return this.http.post(`${environment.baseUrl}/images/users`, formData, { headers: headersToSend }).pipe(
         map((data: any) => {
           return data;
@@ -36,6 +37,20 @@ export class FilesService {
       );
 		
 	}
+
+	getImageName(imageId:String): Observable<any>
+	{
+		let headersToSend = new HttpHeaders();
+		headersToSend = headersToSend
+			.set('x-access-token', this.token)
+			.set('Accept','application/json');
+		return this.http.get(`${environment.baseUrl}/images/name/${imageId}`, { headers: headersToSend } ).pipe(
+			map((data: any) => {
+				return data;
+			})
+		);
+	}
+
 
   	getImage(imageId:String): Observable<any>
 	{

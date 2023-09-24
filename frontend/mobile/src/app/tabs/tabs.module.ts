@@ -8,6 +8,7 @@ import { ShippingsComponent } from '../components/shippings/shippings.component'
 import { ShippingNewComponent } from '../components/shipping-new/shipping-new.component';
 import { CameraComponent } from '../components/camera/camera.component';
 import { ShippingListComponent } from '../components/shipping-list/shipping-list.component';
+import { ShippingCancelComponent } from '../components/shipping-cancel/shipping-cancel.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,9 @@ import { ShippingListComponent } from '../components/shipping-list/shipping-list
     ReactiveFormsModule,
     TabsPageRoutingModule
   ],
-  declarations: [TabsPage,ShippingsComponent, ShippingNewComponent, CameraComponent, ShippingListComponent]
+  declarations: [
+    TabsPage, CameraComponent,
+    ShippingsComponent, ShippingNewComponent,  
+    ShippingListComponent, ShippingCancelComponent]
 })
 export class TabsPageModule {}

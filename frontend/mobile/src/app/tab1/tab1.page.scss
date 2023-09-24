@@ -1,11 +1,11 @@
 ion-content {
-	--padding-top: 10%;
-	--padding-start: 5%;
-	--padding-end: 5%;
+	
+	--padding-start: 5px;	
+	--padding-end: 5px;
 }
 
-p b{
-	font-size:16px;
+p{
+	font-size:12px;
 }
 
 .requester{
@@ -17,31 +17,29 @@ p b{
 }
 
 .statusCreated{
-	font-size: 16px;
 	color:cyan;
 }
 
 .statusAccepted{
-	font-size: 16px;
 	color:darkcyan;
 }
 
 .statusOnDelivery{
-	font-size: 16px;
 	color:blue;
 }
 
 .statusDelivered{
-	font-size: 16px;
 	color:green;
 }
 
 
 .statusCancel{
-	font-size: 16px;
+
 	color:red;
 }
 
-.title{
-	font-size:25px;
+ion-card img{
+	max-height: 200px;
 }
+
+

@@ -1,95 +1,71 @@
-<!--
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button  [strong]="true" (click)="cancel()">Cancelar</ion-button>
-    </ion-buttons>
-    <ion-buttons slot="end">
-      <ion-button (click)="confirm()" [strong]="true" [disabled]="_acceptButtonDisable">Aceptar</ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
--->
+
 <ion-content>
   <h2>Envio #{{this._id}}</h2><br>
   <div style="margin-bottom: 15px">
-    <ion-item *ngIf="_requestUser.show">
+    <ion-item *ngIf="_requestUser" >
       <ion-avatar slot="start">
-        <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+        <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
       </ion-avatar>
-      <ion-input [(ngModel)]="_requestUser.value" type="text" label="Cliente" labelPlacement="floating" [disabled]="_requestUser.disable"></ion-input>
+      <ion-input [(ngModel)]="_requestUser" type="text" label="Cliente" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_deliveryUser.show">
+    <ion-item *ngIf="_deliveryUser">
       <ion-avatar slot="start">
-        <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+        <img  src="https://ionicframework.com/docs/img/demos/avatar.svg" />
       </ion-avatar>
-      <ion-input [(ngModel)]="_deliveryUser.value" type="text" label="Repartidor" labelPlacement="floating" [disabled]="_deliveryUser.disable"></ion-input>
+      <ion-input [(ngModel)]="_deliveryUser" type="text" label="Repartidor" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_requestDate.show">
-      <ion-input  [(ngModel)]="_requestDate.value" type="text" label="Fecha de envio" labelPlacement="floating" [disabled]="_requestDate.disable" ></ion-input>
+    <ion-item *ngIf="_requestDate">
+      <ion-input  [(ngModel)]="_requestDate" type="text" label="Fecha de envio" labelPlacement="floating" disabled ></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_requesterAddress.show">
-      <ion-input [(ngModel)]="_requesterAddress.value" type="text" label="Direccion Origen" labelPlacement="floating" [disabled]="_requesterAddress.disable" ></ion-input>
+    <ion-item *ngIf="_requesterAddress">
+      <ion-input [(ngModel)]="_requesterAddress" type="text" label="Direccion Origen" labelPlacement="floating" disabled ></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_requestCity.show">
-      <ion-input [(ngModel)]="_requestCity.value"  type="text" label="Ciudad Origen" labelPlacement="floating" [disabled]="_requestCity.disable"  ></ion-input>
+    <ion-item *ngIf="_requestCity">
+      <ion-input [(ngModel)]="_requestCity"  type="text" label="Ciudad Origen" labelPlacement="floating" disabled  ></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_destinationAddress.show">
-      <ion-input [(ngModel)]="_destinationAddress.value" type="text" label="Direccion Destino" labelPlacement="floating" [disabled]="_destinationAddress.disable"></ion-input>
+    <ion-item *ngIf="_destinationAddress">
+      <ion-input [(ngModel)]="_destinationAddress" type="text" label="Direccion Destino" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_destinationCity.show">
-      <ion-input [(ngModel)]="_destinationCity.value" type="text" label="Ciudad Destino" labelPlacement="floating" [disabled]="_destinationCity.disable"></ion-input>
+    <ion-item *ngIf="_destinationCity">
+      <ion-input [(ngModel)]="_destinationCity" type="text" label="Ciudad Destino" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_receivedDate.show"> 
-      <ion-input  [(ngModel)]="_receivedDate.value" type="text" label="Fecha de recepcion" labelPlacement="floating" [disabled]="_destinationCity.disable"></ion-input>
+    <ion-item *ngIf="_acceptanceDate"> 
+      <ion-input  [(ngModel)]="_acceptanceDate" type="text" label="Fecha de aceptacion" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_deliveredDate.show">
-      <ion-input [(ngModel)]="_deliveredDate.value" type="text" label="Fecha de entrega" labelPlacement="floating"  [disabled]="_deliveredDate.disable"></ion-input>
+
+    <ion-item *ngIf="_receivedDate"> 
+      <ion-input  [(ngModel)]="_receivedDate" type="text" label="Fecha de recepcion" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_cancelDate.value">
-      <ion-input [(ngModel)]="_cancelDate.value" type="text" label="Fecha de cancelacion" labelPlacement="floating" [disabled]="_cancelDate.disable"></ion-input>
+    <ion-item *ngIf="_deliveredDate">
+      <ion-input [(ngModel)]="_deliveredDate" type="text" label="Fecha de entrega" labelPlacement="floating"  disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_cancelcomments.show">
-      <ion-input [(ngModel)]="_cancelcomments.value" type="text" label="Comentarios de cancelacion" labelPlacement="floating" [disabled]="_cancelcomments.disable"></ion-input>
+    <ion-item *ngIf="_cancelDate">
+      <ion-input [(ngModel)]="_cancelDate" type="text" label="Fecha de cancelacion" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_totalAmount.show">
-      <ion-input [(ngModel)]="_totalAmount.value" type="text" label="Monto" labelPlacement="floating" [disabled]="_totalAmount.disable"></ion-input>
+    <ion-item *ngIf="_cancelcomments">
+      <ion-input [(ngModel)]="_cancelcomments" type="text" label="Comentarios de cancelacion" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="_status.show">
-      <ion-input [(ngModel)]="_status.value" type="text" label="Estado" labelPlacement="floating" [disabled]="_totalAmount.disable"></ion-input>
+    <ion-item *ngIf="_totalAmount">
+      <ion-input [(ngModel)]="_totalAmount" type="text" label="Monto" labelPlacement="floating" disabled></ion-input>
     </ion-item>
 
-    <ion-item *ngIf="(this.shipping && this.shipping.statusid===2)">
-      <ion-checkbox>Confirmar recepcion</ion-checkbox>
+    <ion-item *ngIf="_status">
+      <ion-input [(ngModel)]="_status" type="text" label="Estado" labelPlacement="floating" disabled></ion-input>
     </ion-item>
-
-    <ion-item *ngIf="(this.shipping && this.shipping.statusid===2)">
-      <ion-checkbox>Confirmar entrega</ion-checkbox>
-    </ion-item>
-
-    <ion-item *ngIf="(this.shipping && this.shipping.statusid==2)">
-      <ion-checkbox>Confirmar entrega</ion-checkbox>
-    </ion-item>
-
-  </div>
-  <div *ngIf="shipping.statusid==1 && type=='cancelar'">
-    <span><ion-checkbox *ngIf="_cancel.show" [(ngModel)]="_cancel.value" [disabled]="_cancel.disable" (ionChange)="cancelCheckboxChange()">Cancelar envio</ion-checkbox></span>
-    <span><ion-input *ngIf="_cancelcomments2.show" [(ngModel)]="_cancelcomments2.value" type="text" label="Comentarios de cancelacion" labelPlacement="floating" [disabled]="_cancelcomments2.disable" ></ion-input></span>
   </div>
   <div style="display:flex; justify-content: space-evenly; margin-top: 15px;">
     <ion-button (click)="cancel()" >Regresar</ion-button>
-    <ion-button (click)="confirm()" >Aceptar</ion-button>
   </div>
 </ion-content>

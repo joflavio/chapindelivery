@@ -2,9 +2,15 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthenticationService } from './../services/authentication.service';
 import { AlertController, LoadingController, ModalController, AnimationController   } from '@ionic/angular';
-import { ShippingsComponent } from '../components/shippings/shippings.component';
+import { ShippingCancelComponent } from '../components/shipping-cancel/shipping-cancel.component';
 import { ShippingNewComponent } from '../components/shipping-new/shipping-new.component';
+import { ShippingsComponent } from '../components/shippings/shippings.component';
 import { ShippingsService } from '../services/shippings.service';
+import { FilesService } from '../services/files.service';
+import { Filesystem } from '@capacitor/filesystem';
+import { environment } from 'src/environments/environment';
+import { Directory } from '@capacitor/filesystem';
+
 
 @Component({
   selector: 'app-tab1',
@@ -17,6 +23,7 @@ export class Tab1Page {
   _shippingStatuses:any;
   shippings:any;
   _shipping:any;
+  images = new Map();
 
   constructor(
     private authService: AuthenticationService, 
@@ -26,27 +33,90 @@ export class Tab1Page {
     private modalCtrl: ModalController,
     private animationCtrl: AnimationController,
     private shippingsService: ShippingsService,
+    private filesService:FilesService,
     ) {
 
-      var _user:string|null = localStorage.getItem('myUser');
-      var _cities:string|null = localStorage.getItem('cities');
-      var _shippingStatuses:string|null = localStorage.getItem('shippingStatuses');
-  
+      //this.getShippings();
+    }
+
+    async ngOnInit() {
+      const loadingUsers = await this.loadingController.create();
+      await loadingUsers.present();
+
       try{
-        this._user=JSON.parse(_user?_user:'');
-        this._cities = new Map(JSON.parse(_cities?_cities:'').map((element: { id: any; }) => [element.id, element]));
-        this._shippingStatuses = new Map(JSON.parse(_shippingStatuses?_shippingStatuses:'').map((element: { id: any; }) => [element.id, element]));
+        this._user=JSON.parse(localStorage.getItem('myUser')!);
+        this._cities = new Map(JSON.parse(localStorage.getItem('cities')!).map((element: { id: any; }) => [element.id, element]));
+        this._shippingStatuses = new Map(JSON.parse(localStorage.getItem('shippingStatuses')!).map((element: { id: any; }) => [element.id, element]));
       }
       catch {
         this.logout();
       }
-      this.getShippings();
+      this.shippingsService.getByRequestUserId(this._user.id).subscribe({
+        next: async (res) => {
+          this.shippings=res;
+
+          await loadingUsers.dismiss();
+
+          this.shippings.forEach( async (e:any) => {
+
+            const loadingImages = await this.loadingController.create();
+            await loadingImages.present();
+            
+            this.filesService.getImageName(e.shippingimageid).subscribe({
+              next: async (res) =>{
+                try{
+                  if (!this.images.has(res.id)){
+                    const file = await Filesystem.readFile({
+                      path: `${environment.imageDir}/${res.filename}`,
+                      directory: Directory.Data,
+                    });
+                    const base64=`data:image/jpeg;base64,${file.data}`;
+                    this.images.set(res.id, base64);
+
+                    await loadingImages.dismiss();
+                  }
+                } catch{
+                  console.log(`${environment.imageDir}/${res.filename} no existe!`);
+                  this.filesService.getImage(res.id).subscribe({
+                    next: async (_res) => {
+                      if (_res){
+                        const base64Data = await this.convertBlobToBase64(_res) as string;
+                        if (!this.images.has(res.id)){
+                          this.images.set(res.id, base64Data);
+                        }
+                        const savedFile = await Filesystem.writeFile({
+                          path: `${environment.imageDir}/${res.filename}`,
+                          data: base64Data,
+                          directory: Directory.Data
+                        });
+                      }
+                    }
+                  });
+                  await loadingImages.dismiss();
+                }
+              }
+            });
+          });
+        },
+        error: async (err) => {
+          if (err.status==404) {
+            await loadingUsers.dismiss();
+            return;
+          }
+          else{
+            await loadingUsers.dismiss();
+            this.logout();
+          }
+        },
+        complete: async () => {
+          await loadingUsers.dismiss();
+        }
+      });      
     }
 
     statusCancel(statusid:any){
       return statusid==5;
     }
-
 
     statusDelivered(statusid:any){
       return statusid==4;
@@ -65,24 +135,27 @@ export class Tab1Page {
     }
 
     displayStatus(statusid:any){
-      return this._shippingStatuses.get(statusid).name;
+      const id=parseInt(statusid);
+      return this._shippingStatuses.get(id).name;;
     }
 
     displayCity(cityId:any){
-      return this._cities.get(cityId).name;;
+      const id=parseInt(cityId);
+      return this._cities.get(id).name;;
     }
 
-    private getShippings(){
-      this.shippingsService.getByRequestUserId(this._user.id).subscribe(
-        async (res) => {
-          this.shippings=res;
-        },
-        async (err) => {
-          if (err.status==404) return;
-          this.logout();
-        },
-        async () => console.info('complete')
-      );
+
+    convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+      const reader = new FileReader;
+      reader.onerror = reject;
+      reader.onload = () => {
+          resolve(reader.result);
+      };
+      reader.readAsDataURL(blob);
+    });
+
+    loadImage(shipping:any){
+      return this.images.get(shipping.shippingimageid);
     }
 
     private async logout(){
@@ -98,6 +171,19 @@ export class Tab1Page {
 
     hasEnvios(){
       return this.shippings!=undefined && this.shippings.length>0;
+    }
+
+    hasNoShippings(){
+      var show=true;
+      if (this.shippings){
+        if (this.shippings.length>0){
+          show=false;
+        }
+      }
+      else{
+        show=false;
+      }
+      return show;
     }
 
     enterAnimation = (baseEl: HTMLElement) => {
@@ -129,19 +215,50 @@ export class Tab1Page {
     };
   
   async openShipping(_shipping:any) {
-    const modal = await this.modalCtrl.create({
-      component: ShippingsComponent,
-      componentProps: {
-        shipping:_shipping,
-        type: 'cancelar'
-       },
-      enterAnimation: this.enterAnimation,
-      leaveAnimation: this.leaveAnimation,
-    });
-    modal.present();
+    if (_shipping.statusid==1){
+      const modal = await this.modalCtrl.create({
+        component: ShippingCancelComponent,
+        componentProps: {
+          shipping:_shipping,
+          image: this.images.get(_shipping.shippingimageid)
+        },
+        enterAnimation: this.enterAnimation,
+        leaveAnimation: this.leaveAnimation,
+      });
+      modal.present();
 
-    await modal.onWillDismiss();
+      const {data, role} = await modal.onWillDismiss();
+      if (role=='confirm'){
+        const loadingUsers = await this.loadingController.create();
+        await loadingUsers.present();
+        console.log(data);
+        const shipping=data;
+        this.shippingsService.update(shipping).subscribe({
+          next: (res) => {
+            console.log('done!')
+          },
+          error: (err) => console.log(err),
+          complete: async () =>{
+            await loadingUsers.dismiss();
+          }
+        });
+      }
+    }
 
+    if (_shipping.statusid==2 || _shipping.statusid==5){
+      const modal = await this.modalCtrl.create({
+        component: ShippingsComponent,
+        componentProps: {
+          shipping:_shipping,
+          //image: this.images.get(_shipping.shippingimageid)
+        },
+        enterAnimation: this.enterAnimation,
+        leaveAnimation: this.leaveAnimation,
+      });
+      modal.present();
+
+      const {data, role} = await modal.onWillDismiss();
+    }
   }
 
   async openNew() {
@@ -154,10 +271,20 @@ export class Tab1Page {
       leaveAnimation: this.leaveAnimation,
     });
     modal.present();
-
+ 
     const {data, role} = await modal.onWillDismiss();
     if (role==='confirm'){
-      this.getShippings();
+      console.log(data);
+      const {shipping, image} = data;
+      if (!this.shippings){
+        this.shippings = new Array();
+        console.log('new');
+      }
+      if (!this.images.has(shipping.shippingimageid)){
+
+        this.images.set(shipping.shippingimageid, image.webPath);
+      }
+      this.shippings.push(shipping);
     }
-  }
+  }  
 }

@@ -13,8 +13,8 @@ import { ShippingsComponent } from '../shippings/shippings.component';
 export class ShippingListComponent  implements OnInit {
 
   shippings:any;
-  title:any;
   type:any;
+  images:any;
 
   _user:any;
   _cities:any;
@@ -127,15 +127,12 @@ export class ShippingListComponent  implements OnInit {
     const { data, role }=await modal.onWillDismiss();
     console.log('shipping: '+role);
     this.getServices();
-    /*
-    console.log('shipping list: '+role)
-    if (role=='confirm'){
-      
-      return this.modalCtrl.dismiss(null,'confirm');
-    } 
-    return;*/
    }
 
+  loadImage(shipping:any){
+    //return this.images.get(shipping.shippingimageid);
+    return 'https://ionicframework.com/docs/img/demos/thumbnail.svg';
+  }
    cancel(){
     return this.modalCtrl.dismiss(null,'cancel');
    }
@@ -167,4 +164,9 @@ export class ShippingListComponent  implements OnInit {
   leaveAnimation = (baseEl: HTMLElement) => {
     return this.enterAnimation(baseEl).direction('reverse');
   };
+
+  confirm(shipping:any) {
+    return this.modalCtrl.dismiss(shipping, 'confirm');
+  }
+
 }

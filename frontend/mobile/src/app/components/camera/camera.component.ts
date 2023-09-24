@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController  } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource,} from '@capacitor/camera';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-camera',
@@ -21,9 +22,11 @@ export class CameraComponent  implements OnInit {
 	async selectImage(){
     const image = await Camera.getPhoto({
       quality: 90,
+      correctOrientation: true,
+      height: 1280,
       allowEditing: false,
       resultType: CameraResultType.Uri,
-      source: CameraSource.Photos // Camera, Photos or Prompt!
+      source: (environment.camera)?CameraSource.Camera:CameraSource.Photos // Camera, Photos or Prompt!
     });
 
     this._image=image;

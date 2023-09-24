@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, AlertController } from '@ionic/angular';
+import { ModalController, AlertController, LoadingController } from '@ionic/angular';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { ShippingsService } from 'src/app/services/shippings.service';
+import { UsersService } from 'src/app/services/users.service';
 import { Router } from '@angular/router';
+
 
 class Input{
   value:any;
-  disable:boolean=true;
-  show:boolean=true;
+  //disable:boolean=true;
+  //show:boolean=true;
 }
 
 @Component({
@@ -22,23 +24,24 @@ export class ShippingsComponent  implements OnInit {
   _cities:any;
   _user:any;
   _shippingStatuses:any;
+
   _id:any;
-  _requestUser:Input=new Input();
-  _deliveryUser:Input=new Input();
-  _requestDate:Input=new Input();
-  _requesterAddress:Input=new Input();
-  _requestCity:Input=new Input();
-  _destinationAddress:Input=new Input();
-  _destinationCity:Input=new Input();
-  _receivedDate:Input=new Input();
-  _deliveredDate:Input=new Input();
-  _cancelDate:Input=new Input();
-  _totalAmount:Input=new Input();
-  _cancel:Input=new Input();
-  _cancelcomments2:Input=new Input();
-  _cancelcomments:Input=new Input();
-  _status:Input=new Input();
-  //_acceptButtonDisable:boolean=true;
+  _requestUser:any;
+  _deliveryUser:any;
+  _requestDate:any;
+  _requesterAddress:any;
+  _requestCity:any;
+  _destinationAddress:any;
+  _destinationCity:any;
+  _acceptanceDate:any;
+  _receivedDate:any;
+  _deliveredDate:any;
+  _cancelDate:any;
+  _totalAmount:any;
+  _cancel:any;
+  _cancelcomments2:any;
+  _cancelcomments:any;
+  _status:any;
 
   constructor(
     private modalCtrl: ModalController,
@@ -46,6 +49,8 @@ export class ShippingsComponent  implements OnInit {
     private router:Router,
     private alertController: AlertController,
     private shippingsService: ShippingsService,
+    private loadingController: LoadingController,
+    private usersService:UsersService, 
   ) {
     var _user:string|null = localStorage.getItem('myUser');
     var _cities:string|null = localStorage.getItem('cities');
@@ -59,53 +64,76 @@ export class ShippingsComponent  implements OnInit {
     catch {
       this.logout();
     }
-    
   }
 
-  ngOnInit() {
+  dateToString(date:any){
+    return (new Date(date)).toLocaleString('en-GB');
+  }
+
+  private async getUserName(userId:any): Promise<any>{
+
+  }
+
+  async ngOnInit() {
     this._id=this.shipping.id;
-    const date = new Date(this.shipping.requestdate);
-    this._requestDate.value=date.toLocaleString('en-GB');
-    this._requesterAddress.value=this.shipping.requestaddress;
-    this._requestCity.value=this._cities.get(this.shipping.requestcityid).name;
-    this._destinationAddress.value=this.shipping.destinationaddress;
-    this._destinationCity.value=this._cities.get(this.shipping.destinationcityid).name;
-    this._totalAmount.value=this.shipping.totalAmount;
-    this._status.value=this._shippingStatuses.get(this.shipping.statusid).name;
+    this._requestDate=this.dateToString(this.shipping.requestdate);
+    this._requesterAddress=this.shipping.requestaddress;
+    this._requestCity=this._cities.get(parseInt(this.shipping.requestcityid)).name;
+    this._destinationAddress=this.shipping.destinationaddress;
+    this._destinationCity=this._cities.get(parseInt(this.shipping.destinationcityid)).name;
+    this._totalAmount=this.shipping.totalAmount;
+    this._status=this._shippingStatuses.get(parseInt(this.shipping.statusid)).name;
+    
+    if (this.shipping.deliveryuserid) this._deliveryUser=this.shipping.deliveryuserid;
+    if (this.shipping.acceptancedate) this._acceptanceDate=this.dateToString(this.shipping.acceptancedate);
+    if (this.shipping.receiveddate) this._receivedDate=this.dateToString(this.shipping.receiveddate);
+    if (this.shipping.canceldate) this._cancelDate=this.dateToString(this.shipping.canceldate);
+    if (this.shipping.cancelcomments) this._cancelcomments=this.shipping.cancelcomments;
+    if (this.shipping.acceptancedate) this._acceptanceDate=this.dateToString(this.shipping.acceptancedate);
+    if (this.shipping.delivereddate) this._deliveredDate=this.dateToString(this.shipping.delivereddate);
 
-    if (this.shipping.canceldate){
-      const date = new Date(this.shipping.requestdate);
-      this._cancelDate.value=date.toLocaleString('en-GB');
+    if (this.shipping.requestuserid){ 
+      const loading = await this.loadingController.create();
+      await loading.present();
+  
+      this.usersService.get(this.shipping.requestuserid).subscribe({
+        next: (res) => {
+          var email: any;
+          const users=res;
+          if (users){
+            email=users[0].email;
+          }
+          this._requestUser=email;
+        },
+        complete: async () => {
+          await loading.dismiss();
+        }
+      });
     }
-    if (this.shipping.cancelcomments){
-      this._cancelcomments.value=this.shipping.cancelcomments;
+    if (this.shipping.deliveryuserid){
+      const loading = await this.loadingController.create();
+      await loading.present();
+  
+      this.usersService.get(this.shipping.deliveryuserid).subscribe({
+        next: (res) => {
+          var email: any;
+          const users=res;
+          if (users){
+            email=users[0].email;
+          }
+          this._deliveryUser=email;
+        },
+        complete: async () => {
+          await loading.dismiss();
+        }
+      });
     }
 
-    switch (this._shippingStatuses.get(this.shipping.statusid).name) {
-      case 'Creado':
-        {
-          this._requestUser.show=false;
-          this._deliveryUser.show=false;
-          this._receivedDate.show=false;
-          this._deliveredDate.show=false;
-          this._cancelDate.show=false;
-          this._cancelcomments.show=false;
-          break;
-        }
-      case 'Cancelada':
-        {
-          this._requestUser.show=false;
-          this._deliveryUser.show=false;
-          this._receivedDate.show=false;
-          this._deliveredDate.show=false;
-          break;
-        }
-    }
-    this._cancel.disable=false;
+
   }
 
   cancelCheckboxChange(){
-    this._cancelcomments2.disable=!this._cancel.value;
+    this._cancelcomments2.disable=!this._cancel;
   }
 
   private async logout(){
@@ -123,47 +151,5 @@ export class ShippingsComponent  implements OnInit {
     return this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  async confirm() {
-     if (this.type=="cancelar") {
-      const alert = this.alertController.create({
-        header: 'Error de Login',
-        message: 'Esta seguro de cancelar el envio?',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-          }, 
-          {
-            text: 'Ok',
-            role: 'confirm',
-          }
-        ]});
-      (await alert).present();
-      const result=(await (await alert).onDidDismiss()).role;
-      if (result==='confirm'){
-        this.shipping.statusid=5;
-        if (this._cancelcomments2.value && this._cancelcomments2.value.trim().length>0){
-          this.shipping.cancelcomments=this._cancelcomments2.value.trim();
-        }
-        this.shippingsService.update(this.shipping).subscribe({
-          next: (res) => console.log(res),
-          error: (err) => console.log(err)
-        });
-      } else if (result==='cancel') {
-        return;
-      }
-      return this.modalCtrl.dismiss('confirm');
-    } else if (this.type=="aceptar"){
-      this.shipping.deliveryuserid=this._user.id;
-      this.shipping.statusid=2;
-      this.shippingsService.update(this.shipping).subscribe({
-        next: (res) => console.log('done!'),
-        error: (err) => console.log(err)
-      });
-      
-      return this.modalCtrl.dismiss(null,'confirm');
-    }
-    return;
-  }
 
 }

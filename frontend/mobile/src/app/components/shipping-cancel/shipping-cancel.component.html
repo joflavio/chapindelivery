@@ -1,0 +1,67 @@
+<ion-content>
+	<h2 style="color:red;">Cancelar Envio</h2>
+	<form (ngSubmit)="saveShipping()" [formGroup]="shippingForm">
+		<div class="input-group">
+			<ion-item>
+				<ion-thumbnail >
+					<img [src]="loadImage()" />
+				</ion-thumbnail>
+			</ion-item>
+			<ion-item>
+				<ion-input type="text" label="Envio:" labelPlacement="floating" formControlName="id"  ></ion-input>
+			</ion-item>
+			<ion-item>
+				<ion-input type="text" label="Fecha:" labelPlacement="floating" formControlName="requestDate"  ></ion-input>
+			</ion-item>
+			<ion-item>
+				<ion-input type="text" label="Direccion origen" labelPlacement="floating"  formControlName="requesterAddress"  ></ion-input>
+			</ion-item>
+			<div *ngIf="shippingForm.get('requesterAddress')?.invalid && (shippingForm.get('requesterAddress')?.dirty || shippingForm.get('requesterAddress')?.touched )" class="errors">
+				<span *ngIf="shippingForm.get('requesterAddress')?.errors?.['required']">Direccion de origen es requerido</span>
+				<span *ngIf="shippingForm.get('requesterAddress')?.errors?.['minlength']">Direccion de origen debe ser mayor a 20 caracteres</span>
+			</div>
+			<ion-item>
+				<ion-select label="Ciudad origen" label-placement="floating" formControlName="requesterCity">
+				  <ion-select-option value="1">Guatemala</ion-select-option>
+				  <ion-select-option value="2" >San Jose Pinula</ion-select-option>
+				</ion-select>
+			  </ion-item>
+			<ion-item>
+			<ion-input type="text" label="Direccion destino" labelPlacement="floating"  formControlName="destinationAddress" ></ion-input>
+			</ion-item>
+			<div *ngIf="shippingForm.get('destinationAddress')?.invalid && (shippingForm.get('destinationAddress')?.dirty || shippingForm.get('destinationAddress')?.touched )" class="errors">
+				<span *ngIf="shippingForm.get('destinationAddress')?.errors?.['required']">Direccion destino es requerido</span>
+				<span *ngIf="shippingForm.get('destinationAddress')?.errors?.['minlength']">Direccion destino debe ser mayor a 20 caracteres</span>
+			</div>
+			<ion-item>
+				<ion-select label="Ciudad destino" label-placement="floating" formControlName="destinationCity">
+				  <ion-select-option value="1">Guatemala</ion-select-option>
+				  <ion-select-option value="2">San Jose Pinula</ion-select-option>
+				</ion-select>
+			  </ion-item>
+			<ion-item>
+			<ion-input type="number" label="Monto a pagar" labelPlacement="floating"  formControlName="totalAmount" placeholder="0.00" inputmode="decimal" pattern="[0-9]*" ></ion-input>
+			</ion-item>
+			<div *ngIf="shippingForm.get('totalAmount')?.invalid && (shippingForm.get('totalAmount')?.dirty || shippingForm.get('totalAmount')?.touched )" class="errors">
+				<span *ngIf="shippingForm.get('totalAmount')?.errors?.['required']">El monto a pagar es requerido</span>
+			</div>
+			<ion-item>
+				<ion-checkbox justify="start" formControlName="cancel">Cancelar el envio?</ion-checkbox>
+			</ion-item>
+			<div *ngIf="shippingForm.get('cancel')?.invalid && (shippingForm.get('cancel')?.dirty || shippingForm.get('cancel')?.touched )" class="errors">
+				<span *ngIf="shippingForm.get('cancel')?.errors?.['pattern']">Debe de seleccionar para cancelar el envio</span>
+			</div>
+			<ion-item>
+				<ion-input type="text" label="Comentarios de cancelacion" labelPlacement="floating"  formControlName="cancelcomments" ></ion-input>
+			</ion-item>
+			<div *ngIf="shippingForm.get('cancelcomments')?.invalid && (shippingForm.get('cancelcomments')?.dirty || shippingForm.get('cancelcomments')?.touched )" class="errors">
+				<span *ngIf="shippingForm.get('cancelcomments')?.errors?.['required']">Commentarios es requerido</span>
+				<span *ngIf="shippingForm.get('cancelcomments')?.errors?.['minlength']">Comentarios debe ser mayor a 20 caracteres</span>
+			</div>
+			<div class="main-buttons">
+				<ion-button (click)="cancel()">Regresar</ion-button>
+				<ion-button (click)="confirm()" [disabled]="!shippingForm.valid" >Aceptar</ion-button>
+			</div>
+		</div>
+	</form>
+</ion-content>

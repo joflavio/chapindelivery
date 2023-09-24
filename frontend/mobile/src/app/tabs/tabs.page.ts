@@ -28,7 +28,7 @@ export class TabsPage {
 			var user=JSON.parse(_user);
 			const toast = await this.toastCtrl.create({
 				message: `Bienvenido ${user.firstname}!!!`,
-				duration: 3000,
+				duration: 750,
 				position: 'middle',
 			});
 			toast.present();

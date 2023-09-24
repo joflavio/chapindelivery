@@ -14,7 +14,13 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Shippings.init({
-
+    shippingimageid: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Files',
+        key: 'id'
+      }
+    },
     requestdate: {
         type: DataTypes.DATE,
         allowNull: false

@@ -7,7 +7,6 @@ import { UsersService } from '../services/users.service';
 import { CameraComponent } from '../components/camera/camera.component';
 import { Photo } from '@capacitor/camera';
 
-
 @Component({
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
@@ -28,34 +27,49 @@ export class Tab3Page {
     private animationCtrl: AnimationController,
     private modalCtrl: ModalController,
     private usersService: UsersService,
-    ) {
-      
-      var _user:string|null = localStorage.getItem('myUser');
-      
-      try{
-        this._user=JSON.parse(_user?_user:'');
-        this._email=this._user.email;
-
-      }
-      catch {
-        this.logout();
-      }
-      this.getImage();
+  ) {
+    try{
+      this._user=JSON.parse(localStorage.getItem('myUser')!);
+      this._email=this._user.email;
     }
+    catch {
+      this.logout();
+    }
+  }
 
-  ngOnInit() {}
+  async ngOnInit(){
 
-  loadUser(){
-    this.usersService.get(this._user.id).subscribe({
-      next: (res) => {
-        if (res.length>0){
-          this._user = res[0];
-          console.log(this._user);
-          localStorage.setItem('myUser',JSON.stringify(this._user));
-        }
-      },
-      error: (err) => {}
-    });
+    const loading = await this.loadingController.create();
+		await loading.present();
+
+    if (this._user.userimageid){
+      this.filesService.getImage(this._user.userimageid).subscribe({
+        next: async (res) => { 
+          const base64Data = await this.convertBlobToBase64(res) as string;
+          this._imageAvatar=base64Data;
+        },
+        error: (err) => { console.log(err);},
+        complete: async () => { await loading.dismiss(); }
+      });  
+    }
+    else{
+      //this._imageAvatar='https://ionicframework.com/docs/img/demos/avatar.svg';
+      await loading.dismiss();
+    }
+    
+  }
+
+  convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader;
+    reader.onerror = reject;
+    reader.onload = () => {
+        resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
+
+  loadAvatar(){
+    return (this._imageAvatar)?this._imageAvatar:"https://ionicframework.com/docs/img/demos/avatar.svg";
   }
 
 	async logout() {
@@ -67,30 +81,10 @@ export class Tab3Page {
 		this.router.navigateByUrl('/', { replaceUrl: true });
 	}
 
-  getImage(){
-    console.log('get image: '+this._user.userimageid);
-    this.filesService.getImage(this._user.userimageid).subscribe({
-      next: (res) => { 
-        console.log(this._imageAvatar);
-        this._imageAvatar=URL.createObjectURL(res);
-        console.log(this._imageAvatar);
-      },
-      error: (err) => { console.log(err);}
-    });
-  }
-
-  loadAvatar(){
-    return this._imageAvatar?this._imageAvatar:undefined;
-  }
-  gologin(){
-    this.router.navigateByUrl('/', { replaceUrl: true });
-  }
-  
   async launchCamera(){
     const modal = await this.modalCtrl.create({
       component: CameraComponent,
       componentProps:{
-        //user: this._user,
       },
       enterAnimation: this.enterAnimation,
       leaveAnimation: this.leaveAnimation,
@@ -102,16 +96,24 @@ export class Tab3Page {
       const photo:Photo = data.image;
       const response = await fetch(photo.webPath!);
       const blob = await response.blob();
-      this.filesService.uploadImage(blob, this._user.email, 1).subscribe({
+      const fileName=`img-${ Date.now()}-${Math.round(Math.random() * 1E9)}.jpg`;
+      this.filesService.uploadUserImage(blob, this._user.email,fileName).subscribe({
         next: (res) => { 
           if (res){
-            this.loadUser();
-            this.getImage();
+            this.usersService.get(this._user.id).subscribe({
+              next: (res) => {
+                if (res.length>0){
+                  this._user = res[0];
+                  localStorage.setItem('myUser',JSON.stringify(this._user));
+                }
+              },
+              error: (err) => {}
+            });
+            this._imageAvatar=photo.webPath;
           }
         },
         error: (err) => { console.log(err);}
       })
-      
     }
   }
 
@@ -143,5 +145,4 @@ export class Tab3Page {
   leaveAnimation = (baseEl: HTMLElement) => {
     return this.enterAnimation(baseEl).direction('reverse');
   };
-
 }

@@ -1,5 +1,7 @@
 <ion-content>
-  <ion-img [src]="loadImage()" alt=""></ion-img>
+  <ion-thumbnail >
+    <ion-img [src]="loadImage()" ></ion-img>
+  </ion-thumbnail>
   <div class="icon-camera">
     <ion-icon name="close-outline" (click)="cancel()" style="color:red;"></ion-icon>
     <ion-icon name="camera-reverse-outline" (click)="selectImage()" style="color:blue;"></ion-icon>

@@ -35,13 +35,15 @@ export class ShippingsService {
 		);
 	}
 
-	create(shipping:any): Observable<any> {
+	create(imageData:any,shipping:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
 			.set('x-access-token', this.token)
 			.set('Accept','application/json');
-			
-		return this.http.post(`${environment.baseUrl}/shippings`, shipping, { headers: headersToSend }).pipe(
+		const formData = new FormData();
+		formData.append('file', imageData);
+		formData.append('shipping', JSON.stringify(shipping));
+		return this.http.post(`${environment.baseUrl}/shippings`, formData, { headers: headersToSend }).pipe(
 			map((data: any) => {
 				return data;
 			})

@@ -1,6 +1,6 @@
 <ion-content>
 	<div style="text-align: center;">
-		<h3>{{title}}</h3>
+		<h3>Envios disponibles</h3>
 	</div>
 	<ion-item *ngIf="!hasEnvios()">
 		<ion-label>
@@ -8,25 +8,31 @@
 		</ion-label>
 	</ion-item>
 	<ng-container *ngIf="hasEnvios()">
-		<div id="envios" *ngFor="let shipping of shippings">
-			<ion-item (click)="openShipping(shipping)">
-				<ion-label>
-				<p class="title"><b>Envio #{{shipping.id}}</b></p>
-				<p >Direccion origen: <b>{{shipping.requestaddress}}</b></p>
-				<p >Ciudad origen: <b>{{displayCity(shipping.requestcityid)}}</b></p>
-				<p >Direccion destino: <b>{{shipping.requestaddress}}</b></p>
-				<p >Ciudad destino: <b>{{displayCity(shipping.destinationcityid)}}</b></p>
-				<p>Estatus: <b 
-					[class.statusCreated]="statusCreated(shipping.statusid)" 
-					[class.statusAccepted]="statusAccepted(shipping.statusid)" 
-					[class.statusOnDelivery]="statusOnDelivery(shipping.statusid)" 
-					[class.statusDelivered]="statusDelivered(shipping.statusid)" 
-					[class.statusCancel]="statusCancel(shipping.statusid)" 
-					>{{displayStatus(shipping.statusid)}}</b></p>
-				</ion-label>
-			</ion-item>
+		<div id="envios" *ngFor="let shipping of shippings" style="margin-top:15px">
+			<ion-card style="margin-top:10px;">
+				<div style="margin:auto; width: 50%; padding-top: 10px;"  (click)="openShipping(shipping)">
+					<img [src]="loadImage(shipping)" style="border-radius: 10px; max-height: 200px; " />
+				</div>
+				<ion-card-content >
+					<div (click)="openShipping(shipping)">
+						<p style="font-weight: bold; font-size: 13px;">Envia: <span>abc@abc.com</span> - Envio: #{{shipping.id}}</p>
+						<p>Origen: {{shipping.requestaddress}}, {{displayCity(shipping.requestcityid)}}</p>
+						<p>Destino: {{shipping.requestaddress}}, {{displayCity(shipping.destinationcityid)}}</p>
+						<p>Estatus: <b 
+							[class.statusCreated]="statusCreated(shipping.statusid)" 
+							[class.statusAccepted]="statusAccepted(shipping.statusid)" 
+							[class.statusOnDelivery]="statusOnDelivery(shipping.statusid)" 
+							[class.statusDelivered]="statusDelivered(shipping.statusid)" 
+							[class.statusCancel]="statusCancel(shipping.statusid)" 
+							>{{displayStatus(shipping.statusid)}}</b></p>
+					</div>
+					<div style="display: flex; justify-content: right; padding-top: 10px;">
+						<ion-button (click)="confirm(shipping)">Aceptar envio</ion-button>
+					</div>
+				</ion-card-content>
+			</ion-card>
 		</div>
-		<div style="display:flex; justify-content: space-evenly; margin-top: 15px;">
+		<div style="  margin: auto; width: 50%; margin-top: 10px; margin-bottom: 10px;">
 			<ion-button (click)="cancel()" >Regresar</ion-button>
 		</div>
 	</ng-container>
