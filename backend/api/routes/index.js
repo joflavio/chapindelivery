@@ -11,6 +11,16 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+/* GET privacypolicy page. */
+router.get('/privacypolicy', function(req, res, next) {
+  res.render('privacypolicy', { title: 'Política de Privacidad de Chapin Delivery' });
+});
+
+/* GET deleteaccount page. */
+router.get('/deleteaccount', function(req, res, next) {
+  res.render('deleteaccount', { title: 'Política de Eliminación de Cuenta de Chapin Delivery' });
+});
+
 // POST login
 router.post('/login', async function(req, res, next) {
   try {
