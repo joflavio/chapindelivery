@@ -1,10 +1,12 @@
 <ion-content>
+  <h1 style="text-align: center; margin-bottom: 25px;">{{title}}</h1>
   <ion-thumbnail >
     <ion-img [src]="loadImage()" ></ion-img>
   </ion-thumbnail>
   <div class="icon-camera">
+    
     <ion-icon name="close-outline" (click)="cancel()" style="color:red;"></ion-icon>
-    <ion-icon name="camera-reverse-outline" (click)="selectImage()" style="color:blue;"></ion-icon>
+    <ion-icon name="camera-reverse-outline" (click)="takePhoto()" style="color:darkgray;"></ion-icon>
     <ion-icon name="checkmark-outline" (click)="confirm()" style="color:green;"></ion-icon>
   </div>
 </ion-content>

@@ -9,9 +9,9 @@
 	</ion-item>
 	<ng-container *ngIf="hasEnvios()">
 		<div id="envios" *ngFor="let shipping of shippings" style="margin-top:15px">
-			<ion-card style="margin-top:10px;">
-				<div style="margin:auto; width: 50%; padding-top: 10px;"  (click)="openShipping(shipping)">
-					<img [src]="loadImage(shipping)" style="border-radius: 10px; max-height: 200px; " />
+			<ion-card style="margin-top:10px;" >
+				<div style="margin:auto; width: 50%; padding-top: 10px;" (click)="openShipping(shipping)">
+					<img [src]="loadImage(shipping)" style="border-radius: 10px; max-height: 200px; "/>
 				</div>
 				<ion-card-content >
 					<div (click)="openShipping(shipping)">

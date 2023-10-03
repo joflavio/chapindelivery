@@ -69,7 +69,7 @@ export class Tab3Page {
   });
 
   loadAvatar(){
-    return (this._imageAvatar)?this._imageAvatar:"https://ionicframework.com/docs/img/demos/avatar.svg";
+    return (this._imageAvatar)?this._imageAvatar:"assets/avatar.svg";
   }
 
 	async logout() {

@@ -12,20 +12,14 @@ export class CitiesService {
 	token:any;
 
 	constructor(private http: HttpClient) {
-		this.loadToken();
-	}
-
-	loadToken(){	
-		const token = localStorage.getItem('myToken');
-		if (token)
-			this.token=token;
 	}
 
 	getAll(): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
+		
 		return this.http.get(`${environment.baseUrl}/cities/all`,{ headers: headersToSend }).pipe(
 			map((data: any) => {
 				return data;

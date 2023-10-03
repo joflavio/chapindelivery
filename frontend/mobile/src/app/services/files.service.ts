@@ -8,41 +8,45 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class FilesService {
-	token:any;
-
-	constructor(private http: HttpClient) {
-		this.loadToken();
-	}
-
-	private loadToken(){	
-		const token = localStorage.getItem('myToken');
-		if (token)
-			this.token=token;
-	}
+	constructor(private http: HttpClient) {}
 
 	uploadUserImage(imageData:any, email:any, fileName:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
       const formData = new FormData();
       formData.append('file', imageData);
       formData.append('email', email);
-      //formData.append('filetypeid', filetypeid);
+      formData.append('filetypeid', '1');
 	  formData.append('filename', fileName);
       return this.http.post(`${environment.baseUrl}/images/users`, formData, { headers: headersToSend }).pipe(
         map((data: any) => {
           return data;
         })
       );
-		
+	}
+
+	uploadImage(imageData:any, filetypeid:any): Observable<any>{
+		let headersToSend = new HttpHeaders();
+		headersToSend = headersToSend
+			.set('x-access-token', localStorage.getItem('myToken')!)
+			.set('Accept','application/json');
+      const formData = new FormData();
+      formData.append('file', imageData);
+      formData.append('filetypeid', filetypeid);
+      return this.http.post(`${environment.baseUrl}/images/upload`, formData, { headers: headersToSend }).pipe(
+        map((data: any) => {
+          return data;
+        })
+      );	
 	}
 
 	getImageName(imageId:String): Observable<any>
 	{
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/images/name/${imageId}`, { headers: headersToSend } ).pipe(
 			map((data: any) => {
@@ -51,12 +55,11 @@ export class FilesService {
 		);
 	}
 
-
   	getImage(imageId:String): Observable<any>
 	{
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/images/download/${imageId}`, { headers: headersToSend, responseType: 'blob' }, /*).pipe(
 			map((data: any) => {

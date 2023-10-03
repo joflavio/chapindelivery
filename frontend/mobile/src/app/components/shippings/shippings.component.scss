@@ -20,3 +20,23 @@ ion-content {
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+
+.statusCreated{
+	color:cyan;
+}
+
+.statusAccepted{
+	color:darkcyan;
+}
+
+.statusOnDelivery{
+	color:DodgerBlue ;
+}
+
+.statusDelivered{
+	color:green;
+}
+
+.statusCancel{
+	color:red;
+}

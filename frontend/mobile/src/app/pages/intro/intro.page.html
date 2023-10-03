@@ -2,22 +2,26 @@
 	<swiper-container #swiper pager="true">
 		<!-- Slide 1 -->
 		<swiper-slide>
-			<ion-text color="light">
+			<ion-text color="medium"  style="text-align: center;" >
 
-				<h1>Hey there!</h1>
-				<p>This is an epic app because...</p>
-				<ion-button (click)="next()" fill="outline" color="light">Next</ion-button>
+				<h1>Hola!!!!</h1>
+				<p style="font-size: 20px;">¿Sabes cual es la app lider en envio <br> de paquetes en Guatemala??</p>
+				<ion-button (click)="next()" fill="outline" color="medium">Continuar...</ion-button>
 			</ion-text>
 		</swiper-slide>
 
 		<!-- Slide 2 -->
 		<swiper-slide > 
-			<ion-text color="light">
+			<ion-text color="medium">
 
-				<h1>It's Ionic!</h1>
-				<p>... it shows all the basics you need!</p>
-				<ion-button (click)="start()" fill="outline" color="light">Start</ion-button>
+				<h1 style="text-align: center; margin-bottom: 20px;">Chapin Delivery</h1>
+
+				<div style="margin:auto; width: 65%; padding-bottom: 20px;">
+					<img src="assets/Logo512.png" style=" border-radius: 15px; " >
+				</div>
+					
 			</ion-text>
+			<ion-button (click)="start()" fill="outline" color="medium">Empezar...</ion-button>
 		</swiper-slide>
 	</swiper-container>
 </ion-content>

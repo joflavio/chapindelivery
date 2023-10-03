@@ -14,8 +14,8 @@ const upload = multer({ storage });
 /* GET home page. */
 router.post('/users', auth, upload.single('file'),  async function(req, res, next) {
     // Get user input
-    const { email, filename } = req.body;
-    const filetypeid=1;
+    const { email, filename, filetypeid } = req.body;
+    
     const { buffer, originalname } = req.file;
     
     await sharp(buffer)
@@ -57,17 +57,15 @@ router.post('/users', auth, upload.single('file'),  async function(req, res, nex
     res.status(500).send('Database error!');
     return;
   }
-  console.log(img);
   if (img){
     var field;
     try {
       switch (filetypeid) {
-        case 1: {
+        case '1': {
           field={ userimageid: img.id};
-          console.log('userid');
           break;
         }
-        case 2: {
+        case '2': {
           field={ satimageid: img.id};
           break;
         }
@@ -75,13 +73,10 @@ router.post('/users', auth, upload.single('file'),  async function(req, res, nex
       const userUpdate = await models.User.update(
         field,
         { where: { email:email}});
-        console.log(userUpdate);
       } catch (err){
-        console.log(err);
         res.status(500).send('Database error!');
         return;
       }
-      
       res.status(200).send(img);
       return;
   }
@@ -90,6 +85,37 @@ router.post('/users', auth, upload.single('file'),  async function(req, res, nex
     return;
   }
 });
+
+router.post('/upload', auth, upload.single('file'),  async function(req, res, next) {
+  const { filetypeid } = req.body;
+  const { buffer, originalname } = req.file;
+
+  const fileName=`img-${ Date.now()}-${Math.round(Math.random() * 1E9)}.jpg`;
+
+  await sharp(buffer)
+  .jpeg({ mozjpeg: true, quality: 50 })
+  .resize({ width: 720 })
+  .toFile(config.IMAGE_FOLDER + fileName);
+
+  var img; 
+  try{
+    img = await models.File.create({
+      originalfilename: originalname,
+      path: config.IMAGE_FOLDER,
+      filename: fileName,
+      uploaddatetime: Date.now(),
+      filetypeid: filetypeid,
+      statusid: '1'
+    });
+  } catch (err){
+    console.log(err);
+    res.status(500).send('Database error!');
+    return;
+  }
+  
+  return res.status(200).send(img);
+});
+
 
 router.get('/download/:id',auth, async function(req, res, next) {
   const  imageid = req.params.id;

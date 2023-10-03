@@ -1,6 +1,4 @@
-body{
-	background: #fff;
-}
+
 ion-content {
 	--padding-top: 10%;
 	--padding-start: 10%;
@@ -8,9 +6,6 @@ ion-content {
 }
 
 .input-group {
-	//border: 1px solid black;
-	background: #fff;
-	//border-radius: 10px;
 	overflow: hidden;
 	margin-bottom: 15px;
 }
@@ -25,7 +20,7 @@ ion-content {
 }
 
 .main-buttons{
-	background: black;
+	//background: #fff;
 	overflow: hidden;
 	display:flex; 
 	justify-content: space-evenly; 

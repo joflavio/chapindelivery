@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   apiKey: 'i8o65TQIddw5vgsWizQZuQU0WZsb76FOaeLDKXgdZUS5611Y6rRhXI0Yguf9FhBfZ3UBBdvAQgOBbfkY', // <-- Enter your own key here!'
   baseUrl: 'http://localhost:8626',
+  //baseUrl: 'https://nads.chapindelivery.com',
   imageDir: 'stored-images',
   camera: false
 };

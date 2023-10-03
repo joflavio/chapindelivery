@@ -2,8 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController, LoadingController, ModalController, AnimationController   } from '@ionic/angular';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { ShippingsService } from 'src/app/services/shippings.service';
+import { FilesService } from 'src/app/services/files.service';
 import { Router } from '@angular/router';
 import { ShippingsComponent } from '../shippings/shippings.component';
+import { Filesystem } from '@capacitor/filesystem';
+import { Directory } from '@capacitor/filesystem/dist/esm/definitions';
+import { environment } from 'src/environments/environment';
+
+
 
 @Component({
   selector: 'app-shipping-list',
@@ -14,7 +20,7 @@ export class ShippingListComponent  implements OnInit {
 
   shippings:any;
   type:any;
-  images:any;
+  images = new Map();
 
   _user:any;
   _cities:any;
@@ -28,37 +34,102 @@ export class ShippingListComponent  implements OnInit {
     private modalCtrl: ModalController,
     private modalController: ModalController,
     private animationCtrl: AnimationController,
-    private shippingsService: ShippingsService
+    private shippingsService: ShippingsService,
+    private filesService: FilesService,
   ) { 
 
+  }
+
+  async ngOnInit() {
     try{
       this._user=JSON.parse(localStorage.getItem('myUser')!);
       this._cities = new Map(JSON.parse(localStorage.getItem('cities')!).map((element: { id: any; }) => [element.id, element]));
       this._shippingStatuses = new Map(JSON.parse(localStorage.getItem('shippingStatuses')!).map((element: { id: any; }) => [element.id, element]));
-      this.getServices();
+       await this.getShippings();
     }
     catch {
       this.logout();
     }
   }
+  
+  getShippings = () => new Promise(async (resolve, reject) => {
+    const loadingShippings = await this.loadingController.create();
+    await loadingShippings.present();
 
-  ngOnInit() {}
-
-  getServices(){
     this.shippingsService.getByStatusId(1).subscribe({
-      next: (res) => {
-        if (res){
-          this.shippings=res;
-        }
-      },
-      error: (err) => {
-        console.log('services: error - 404');
-        if (err.status==404){
-          this.shippings=undefined;
-        }
+    next: async (res) => {
+      console.log(res);
+      this.shippings=res;
+      
+      this.shippings.forEach( async (e:any) => {
+        const loadingImages = await this.loadingController.create();
+        await loadingImages.present();
+
+        this.filesService.getImageName(e.shippingimageid).subscribe({
+          next: async (res) =>{
+            try{
+              if (!this.images.has(res.id)){
+                const file = await Filesystem.readFile({
+                  path: `${environment.imageDir}/${res.filename}`,
+                  directory: Directory.Data,
+                });
+                const base64=`data:image/jpeg;base64,${file.data}`;
+                this.images.set(res.id, base64);
+              }
+              await loadingImages.dismiss();
+
+            } catch{
+              console.log(`${environment.imageDir}/${res.filename} no existe!`);
+              this.filesService.getImage(res.id).subscribe({
+                next: async (_res) => {
+                  if (_res){
+                    const base64Data = await this.convertBlobToBase64(_res) as string;
+                    if (!this.images.has(res.id)){
+                      this.images.set(res.id, base64Data);
+                    }
+                    const savedFile = await Filesystem.writeFile({
+                      path: `${environment.imageDir}/${res.filename}`,
+                      data: base64Data,
+                      directory: Directory.Data
+                    });
+                  }
+                }
+              });
+              await loadingImages.dismiss();
+            }
+          },
+          error: async (err) =>{
+            await loadingImages.dismiss();
+          }
+        });
+      });
+      
+    },
+    error: async (err) => {
+      if (err.status==404) {
+        await loadingShippings.dismiss();
+        return;
       }
-    });
-  }
+      else{
+        this.logout();
+        throw reject;
+      }
+    },
+    complete: async () => {
+      resolve(null);
+      await loadingShippings.dismiss();
+    }
+  });     
+  });
+
+  convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+  const reader = new FileReader;
+  reader.onerror = reject;
+  reader.onload = () => {
+      resolve(reader.result);
+  };
+  reader.readAsDataURL(blob);
+  });
 
   private async logout(){
     this.authService.logout();
@@ -126,12 +197,11 @@ export class ShippingListComponent  implements OnInit {
     modal.present();
     const { data, role }=await modal.onWillDismiss();
     console.log('shipping: '+role);
-    this.getServices();
+    this.getShippings();
    }
 
   loadImage(shipping:any){
-    //return this.images.get(shipping.shippingimageid);
-    return 'https://ionicframework.com/docs/img/demos/thumbnail.svg';
+    return this.images.get(shipping.shippingimageid);
   }
    cancel(){
     return this.modalCtrl.dismiss(null,'cancel');

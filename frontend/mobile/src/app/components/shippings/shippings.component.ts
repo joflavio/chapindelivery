@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, AlertController, LoadingController } from '@ionic/angular';
+import { ModalController, AlertController, LoadingController, AnimationController } from '@ionic/angular';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { ShippingsService } from 'src/app/services/shippings.service';
 import { UsersService } from 'src/app/services/users.service';
 import { Router } from '@angular/router';
+import { ImageViewerComponent } from '../image-viewer/image-viewer.component';
+import { FilesService } from 'src/app/services/files.service';
 
 
 class Input{
@@ -51,6 +53,8 @@ export class ShippingsComponent  implements OnInit {
     private shippingsService: ShippingsService,
     private loadingController: LoadingController,
     private usersService:UsersService, 
+    private animationCtrl:AnimationController,
+    private filesService:FilesService,
   ) {
     var _user:string|null = localStorage.getItem('myUser');
     var _cities:string|null = localStorage.getItem('cities');
@@ -128,8 +132,10 @@ export class ShippingsComponent  implements OnInit {
         }
       });
     }
+  }
 
-
+  status(statusId:any){
+    return (this.shipping.statusid==statusId);
   }
 
   cancelCheckboxChange(){
@@ -151,5 +157,79 @@ export class ShippingsComponent  implements OnInit {
     return this.modalCtrl.dismiss(null, 'cancel');
   }
 
+  convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader;
+    reader.onerror = reject;
+    reader.onload = () => {
+        resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
 
+  async openImage(statusid:any){
+    if ((this.shipping.statusid==3 && !this.shipping.receivedimageid)
+      || (this.shipping.statusid==4 && !this.shipping.deliveredimageid))
+      return ;
+
+    const loadingImages = await this.loadingController.create();
+    await loadingImages.present();
+    
+    const title=(this.shipping.statusid==3)?"Recepcion":"Entrega";
+    
+    var imageid;
+    if (statusid==3)
+      imageid=this.shipping.receivedimageid;
+    else if (statusid==4)
+      imageid=this.shipping.deliveredimageid;
+    console.log(imageid);
+    this.filesService.getImage(imageid).subscribe({
+      next: async (res) => {
+        const base64Data = await this.convertBlobToBase64(res) as string;
+        await loadingImages.dismiss();
+        const modal = await this.modalCtrl.create({
+          component: ImageViewerComponent,
+          componentProps: {
+            title: title,
+            photo: base64Data
+          },
+          enterAnimation: this.enterAnimation,
+          leaveAnimation: this.leaveAnimation,
+        });
+        await modal.present();
+      },
+      error: async () =>{
+        await loadingImages.dismiss();
+      }
+    });
+
+  }
+
+  
+  enterAnimation = (baseEl: HTMLElement) => {
+    const root = baseEl.shadowRoot;
+
+    const backdropAnimation = this.animationCtrl
+      .create()
+      .addElement(root?.querySelector('ion-backdrop')!)
+      .fromTo('opacity', '0.01', 'var(--backdrop-opacity)');
+
+    const wrapperAnimation = this.animationCtrl
+      .create()
+      .addElement(root?.querySelector('.modal-wrapper')!)
+      .keyframes([
+        { offset: 0, opacity: '0', transform: 'scale(0)' },
+        { offset: 1, opacity: '0.99', transform: 'scale(1)' },
+      ]);
+
+    return this.animationCtrl
+      .create()
+      .addElement(baseEl)
+      .easing('ease-out')
+      .duration(500)
+      .addAnimation([backdropAnimation, wrapperAnimation]);
+  };
+
+  leaveAnimation = (baseEl: HTMLElement) => {
+    return this.enterAnimation(baseEl).direction('reverse');
+  };
 }

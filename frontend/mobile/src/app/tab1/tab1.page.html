@@ -5,6 +5,9 @@
 </ion-header>
 
 <ion-content>
+	<ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
 	<ion-item *ngIf="hasNoShippings()">
 		<ion-label>
 		  <h3>No hay envios!!!</h3>
@@ -17,7 +20,7 @@
 					<img [src]="loadImage(shipping)" style="border-radius: 10px;"/>
 				</div>
 				<ion-card-content >
-					<p style="font-weight: bold; font-size: 13px;">Envia: <span>abc@abc.com</span> - Envio: #{{shipping.id}}</p>
+					<p style="font-weight: bold; font-size: 13px;">Envio: #{{shipping.id}}</p>
 					<p>Origen: {{shipping.requestaddress}}, {{displayCity(shipping.requestcityid)}}</p>
 					<p>Destino: {{shipping.requestaddress}}, {{displayCity(shipping.destinationcityid)}}</p>
 					<p>Estatus: <b 

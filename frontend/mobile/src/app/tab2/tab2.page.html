@@ -5,6 +5,9 @@
 </ion-header>
 
 <ion-content>
+	<ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
 	<ion-item *ngIf="hasNoShippings()">
 		<ion-label>
 		  <h3>No hay envios!!!</h3>
@@ -18,15 +21,15 @@
 				</div>
 				<ion-card-content >
 					<div (click)="openShipping(shipping)">
-						<p style="font-weight: bold; font-size: 13px;">Envia: <span>abc@abc.com</span> - Envio: #{{shipping.id}}</p>
+						<p style="font-weight: bold; font-size: 13px;">Envio: #{{shipping.id}}</p>
 						<p>Origen: {{shipping.requestaddress}}, {{displayCity(shipping.requestcityid)}}</p>
 						<p>Destino: {{shipping.requestaddress}}, {{displayCity(shipping.destinationcityid)}}</p>
 						<p>Estatus: <b 
-							[class.statusCreated]="statusCreated(shipping.statusid)" 
-							[class.statusAccepted]="statusAccepted(shipping.statusid)" 
-							[class.statusOnDelivery]="statusOnDelivery(shipping.statusid)" 
-							[class.statusDelivered]="statusDelivered(shipping.statusid)" 
-							[class.statusCancel]="statusCancel(shipping.statusid)" 
+							[class.statusCreated]="status(shipping.statusid,1)" 
+							[class.statusAccepted]="status(shipping.statusid,2)" 
+							[class.statusOnDelivery]="status(shipping.statusid,3)" 
+							[class.statusDelivered]="status(shipping.statusid,4)" 
+							[class.statusCancel]="status(shipping.statusid,5)" 
 							>{{displayStatus(shipping.statusid)}}</b></p>
 					</div>
 					<div style="display: flex; justify-content: right; padding-top: 10px;">
@@ -37,7 +40,7 @@
 		</div>
 	</ng-container>
 	<div>
-		<ion-fab slot="fixed" vertical="bottom" horizontal="end" style="margin:25px;">
+		<ion-fab slot="fixed" vertical="bottom" horizontal="end" >
 			<ion-fab-button (click)="searchNew()">
 				<ion-icon  name="search-outline"></ion-icon>
 			</ion-fab-button>

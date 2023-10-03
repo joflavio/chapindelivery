@@ -4,8 +4,10 @@ import { ShippingsService } from 'src/app/services/shippings.service';
 import { LoadingController, AlertController,ModalController,AnimationController } from '@ionic/angular';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { Router } from '@angular/router';
-import { CameraComponent } from '../camera/camera.component';
+//import { CameraComponent } from '../camera/camera.component';
+import { Camera, CameraResultType, CameraSource,} from '@capacitor/camera';
 import { Photo } from '@capacitor/camera';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-shipping-new',
@@ -49,7 +51,7 @@ export class ShippingNewComponent  implements OnInit {
       return photo.webPath;
     }
     else {
-      return 'https://ionicframework.com/docs/img/demos/thumbnail.svg';
+      return 'assets/thumbnail.svg';
     }
   }
 
@@ -71,7 +73,19 @@ export class ShippingNewComponent  implements OnInit {
   }
 
   async confirm() {
+    if (!this._image){
+      const alert = this.alertController.create({
+        header: 'Error',
+        message: 'Tomar la foto!!',
+        buttons: ['OK']
+      });
+     (await alert).present();
+      return;
+    }
+    
     const loading = await this.loadingController.create();
+		await loading.present();
+
     var _shipping = {
       requestuserid:this._user.id,
       requestaddress: this.shipping.value['requesterAddress'],
@@ -84,8 +98,8 @@ export class ShippingNewComponent  implements OnInit {
     const response = await fetch(photo.webPath!);
       const blob = await response.blob();
     this.shippingsService.create(blob, _shipping).subscribe({
-      next: (res) => {
-        loading.dismiss();
+      next: async (res) => {
+        await loading.dismiss();
         return this.modalCtrl.dismiss(
           {
             shipping: res,
@@ -137,20 +151,17 @@ export class ShippingNewComponent  implements OnInit {
   };
 
   async launchCamera(){
-    const modal = await this.modalCtrl.create({
-      component: CameraComponent,
-      componentProps:{
-        //user: this._user,
-      },
-      enterAnimation: this.enterAnimation,
-      leaveAnimation: this.leaveAnimation,
+    const image = await Camera.getPhoto({
+      quality: 50,
+      correctOrientation: true,
+      height: 1280,
+      allowEditing: false,
+      resultType: CameraResultType.Uri,
+      source: (environment.camera)?CameraSource.Camera:CameraSource.Photos // Camera, Photos or Prompt!
     });
-    modal.present();
 
-    const {data, role} = await modal.onWillDismiss();
-    if (role==='confirm'){
-      this._image=data.image;
-    }
+    this._image=image;
+
   }
 
 }

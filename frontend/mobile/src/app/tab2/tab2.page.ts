@@ -2,24 +2,16 @@ import { Component } from '@angular/core';
 import { ShippingsComponent } from '../components/shippings/shippings.component';
 import { ShippingsService } from '../services/shippings.service';
 import { AuthenticationService } from './../services/authentication.service';
+import { FilesService } from '../services/files.service';
+import { UsersService } from '../services/users.service';
 import { AlertController, LoadingController, ModalController, AnimationController   } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ShippingListComponent } from '../components/shipping-list/shipping-list.component';
-import { FilesService } from '../services/files.service';
-import { UsersService } from '../services/users.service';
 import { Filesystem } from '@capacitor/filesystem';
 import { Directory } from '@capacitor/filesystem/dist/esm/definitions';
 import { environment } from 'src/environments/environment';
-
-
-const convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
-  const reader = new FileReader;
-  reader.onerror = reject;
-  reader.onload = () => {
-      resolve(reader.result);
-  };
-  reader.readAsDataURL(blob);
-});
+import { CameraComponent } from '../components/camera/camera.component';
+import { Photo } from '@capacitor/camera';
 
 @Component({
   selector: 'app-tab2',
@@ -49,10 +41,6 @@ export class Tab2Page {
     }
 
     async ngOnInit() {
-      /*
-      const loadingUsers = await this.loadingController.create();
-      await loadingUsers.present();
-*/
       try{
         this._user=JSON.parse(localStorage.getItem('myUser')!);
         this._cities = new Map(JSON.parse(localStorage.getItem('cities')!).map((element: { id: any; }) => [element.id, element]));
@@ -62,13 +50,15 @@ export class Tab2Page {
         this.logout();
       }
       try{
-        console.log('1');
         await this.getShippings();
       } catch(err){}
-        
-      //await loadingUsers.dismiss();
     }
     
+    async handleRefresh(event:any) {
+      await this.ngOnInit();
+      event.target.complete();
+    }
+
     convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
       const reader = new FileReader;
       reader.onerror = reject;
@@ -148,31 +138,15 @@ export class Tab2Page {
       this.authService.logout();
       this.router.navigateByUrl('/', { replaceUrl:true });
       const alert = await this.alertController.create({
-        header: 'Mis Envios',
+        header: 'Repartidores',
         message: 'Algo fue mal!!!',
         buttons: ['OK']
       });
       await alert.present();
     }
 
-    statusCancel(statusid:any){
-      return statusid==5;
-    }
-
-    statusDelivered(statusid:any){
-      return statusid==4;
-    }
-
-    statusOnDelivery(statusid:any){
-      return statusid==3;
-    }
-
-    statusAccepted(statusid:any){
-      return statusid==2;
-    }
-
-    statusCreated(statusid:any){
-      return statusid==1;
+    status(userStatusId:any, statusId:any){
+      return userStatusId==statusId;
     }
 
     displayStatus(statusid:any){
@@ -253,49 +227,88 @@ export class Tab2Page {
       });
       modal.present();
       const { data, role } = await modal.onWillDismiss();
-      //console.log('tabs2: '+role);
+
       if (role=='confirm'){
         const shipping=data;
-        //console.log(shipping);
         shipping.deliveryuserid=this._user.id;
         shipping.statusid=2;
         await this.updateShipping(shipping);
-
         await this.getShippings();
       }
       
     }
 
-    private async updateShipping(shipping:any){
+    private async updateShipping(shipping:any):Promise<void>{
       const loading = await this.loadingController.create();
       await loading.present();
 
       this.shippingsService.update(shipping).subscribe({
         next: (res) => {
-          console.log(res);
+          //console.log(res);
           shipping=res;
         },
         error: (err)=> { console.log(err)},
         complete: async () => {
           await loading.dismiss();
         }
-
       });
     }
 
     async receiveShipping(shipping:any){
-      console.log(shipping);
+      
+      const image = await this.launchCamera(this.buttonText(shipping));
+      if (!image){
+        return;
+      }
+      
+      const loading = await this.loadingController.create();
+      await loading.present();
+
       if (shipping.statusid==2)
         shipping.statusid=3;
       else if (shipping.statusid==3)
         shipping.statusid=4;  
       else return;
 
-      this.updateShipping(shipping);
-
+      const photo:Photo = image;
+      const response = await fetch(photo.webPath!);
+      const blob = await response.blob();
+      this.filesService.uploadImage(blob, (shipping.statusid==3)?'6':'7').subscribe({
+        next: (res) => {
+          console.log(res);
+          if (shipping.statusid==3){
+            shipping.receivedimageid=res.id;
+          } else if (shipping.statusid==4) {
+            shipping.deliveredimageid=res.id;
+          }
+        },
+        complete: async ()=>{
+          console.log(shipping);
+          await this.updateShipping(shipping);
+          await loading.dismiss();
+        }
+      });
     }
 
-    buttonText(shipping:any){
+    async launchCamera(title:string):Promise<any>{
+      const modal = await this.modalCtrl.create({
+        component: CameraComponent,
+        componentProps:{
+          title: title
+        },
+        enterAnimation: this.enterAnimation,
+        leaveAnimation: this.leaveAnimation,
+      });
+      modal.present();
+  
+      const {data, role} = await modal.onWillDismiss();
+      if (role==='confirm'){
+        return data.image;
+      }
+      return null;
+    }
+
+    buttonText(shipping:any):string{
       var text=""
       if (shipping.statusid==2) text="Recibir envio";
       else if (shipping.statusid==3) text="Entregar envio";

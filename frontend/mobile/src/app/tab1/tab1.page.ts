@@ -6,6 +6,7 @@ import { ShippingCancelComponent } from '../components/shipping-cancel/shipping-
 import { ShippingNewComponent } from '../components/shipping-new/shipping-new.component';
 import { ShippingsComponent } from '../components/shippings/shippings.component';
 import { ShippingsService } from '../services/shippings.service';
+import { UsersService } from '../services/users.service';
 import { FilesService } from '../services/files.service';
 import { Filesystem } from '@capacitor/filesystem';
 import { environment } from 'src/environments/environment';
@@ -34,29 +35,24 @@ export class Tab1Page {
     private animationCtrl: AnimationController,
     private shippingsService: ShippingsService,
     private filesService:FilesService,
+    private usersService: UsersService,
     ) {
-
-      //this.getShippings();
     }
 
     async ngOnInit() {
-      const loadingUsers = await this.loadingController.create();
-      await loadingUsers.present();
 
       try{
         this._user=JSON.parse(localStorage.getItem('myUser')!);
         this._cities = new Map(JSON.parse(localStorage.getItem('cities')!).map((element: { id: any; }) => [element.id, element]));
         this._shippingStatuses = new Map(JSON.parse(localStorage.getItem('shippingStatuses')!).map((element: { id: any; }) => [element.id, element]));
       }
-      catch {
-        this.logout();
+      catch (err){
+        this.logout(err);
       }
       this.shippingsService.getByRequestUserId(this._user.id).subscribe({
         next: async (res) => {
           this.shippings=res;
-
-          await loadingUsers.dismiss();
-
+          
           this.shippings.forEach( async (e:any) => {
 
             const loadingImages = await this.loadingController.create();
@@ -76,7 +72,7 @@ export class Tab1Page {
                     await loadingImages.dismiss();
                   }
                 } catch{
-                  console.log(`${environment.imageDir}/${res.filename} no existe!`);
+                  //console.log(`${environment.imageDir}/${res.filename} no existe!`);
                   this.filesService.getImage(res.id).subscribe({
                     next: async (_res) => {
                       if (_res){
@@ -92,26 +88,43 @@ export class Tab1Page {
                       }
                     }
                   });
-                  await loadingImages.dismiss();
+                  
                 }
+              },
+              complete: async () => {
+                await loadingImages.dismiss();
               }
             });
           });
         },
         error: async (err) => {
           if (err.status==404) {
-            await loadingUsers.dismiss();
             return;
           }
           else{
-            await loadingUsers.dismiss();
-            this.logout();
+            console.log(err);
+            this.logout(err);
           }
         },
         complete: async () => {
-          await loadingUsers.dismiss();
         }
       });      
+    }
+
+    private async logout(err:any){
+      this.authService.logout();
+      this.router.navigateByUrl('/', { replaceUrl:true });
+      const alert = await this.alertController.create({
+        header: 'Mis Envios',
+        message: 'Algo fue mal: '+err,
+        buttons: ['OK']
+      });
+      await alert.present();
+    }
+
+    async handleRefresh(event:any) {
+      await this.ngOnInit();
+      event.target.complete();
     }
 
     statusCancel(statusid:any){
@@ -156,17 +169,6 @@ export class Tab1Page {
 
     loadImage(shipping:any){
       return this.images.get(shipping.shippingimageid);
-    }
-
-    private async logout(){
-      this.authService.logout();
-      this.router.navigateByUrl('/', { replaceUrl:true });
-      const alert = await this.alertController.create({
-        header: 'Mis Envios',
-        message: 'Algo fue mal!!!',
-        buttons: ['OK']
-      });
-      await alert.present();
     }
 
     hasEnvios(){
@@ -215,6 +217,7 @@ export class Tab1Page {
     };
   
   async openShipping(_shipping:any) {
+    //Cancel
     if (_shipping.statusid==1){
       const modal = await this.modalCtrl.create({
         component: ShippingCancelComponent,
@@ -245,21 +248,22 @@ export class Tab1Page {
       }
     }
 
-    if (_shipping.statusid==2 || _shipping.statusid==5){
+    if (_shipping.statusid>=2 ){
       const modal = await this.modalCtrl.create({
         component: ShippingsComponent,
         componentProps: {
-          shipping:_shipping,
+          shipping: _shipping,
           //image: this.images.get(_shipping.shippingimageid)
         },
         enterAnimation: this.enterAnimation,
         leaveAnimation: this.leaveAnimation,
       });
       modal.present();
-
       const {data, role} = await modal.onWillDismiss();
     }
   }
+
+
 
   async openNew() {
     const modal = await this.modalCtrl.create({
@@ -275,16 +279,16 @@ export class Tab1Page {
     const {data, role} = await modal.onWillDismiss();
     if (role==='confirm'){
       console.log(data);
-      const {shipping, image} = data;
+      const {shipping, image, loading} = data;
       if (!this.shippings){
         this.shippings = new Array();
-        console.log('new');
       }
       if (!this.images.has(shipping.shippingimageid)){
 
         this.images.set(shipping.shippingimageid, image.webPath);
       }
       this.shippings.push(shipping);
+      //loading.dismiss();
     }
   }  
 }

@@ -10,23 +10,13 @@ import { environment } from 'src/environments/environment';
 })
 export class ShippingsService {
 
-	token:any;
-
-	constructor(private http: HttpClient) {
-		this.loadToken();
-	}
+	constructor(private http: HttpClient) {	}
 	 
-	loadToken(){	
-		const token = localStorage.getItem('myToken');
-		if (token)
-			this.token=token;
-	}
-
 	getShippingStatuses(): Observable<any>
 	{
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token',localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/shippingstatus/all`, { headers: headersToSend }).pipe(
 			map((data: any) => {
@@ -38,7 +28,7 @@ export class ShippingsService {
 	create(imageData:any,shipping:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		const formData = new FormData();
 		formData.append('file', imageData);
@@ -53,7 +43,7 @@ export class ShippingsService {
 	update(shipping:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 			
 		return this.http.put(`${environment.baseUrl}/shippings`, shipping, { headers: headersToSend }).pipe(
@@ -66,7 +56,7 @@ export class ShippingsService {
 	getAll(): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/shippings/all`,{ headers: headersToSend }).pipe(
 			map((data: any) => {
@@ -79,7 +69,7 @@ export class ShippingsService {
 	getByRequestUserId(requestUserId:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/shippings/requestuserid/${requestUserId}`,{ headers: headersToSend }).pipe(
 			map((data: any) => {
@@ -92,7 +82,7 @@ export class ShippingsService {
 	getByDeliveryUserId(deliveryUserId:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/shippings/deliveryuserid/${deliveryUserId}`,{ headers: headersToSend }).pipe(
 			map((data: any) => {
@@ -105,7 +95,7 @@ export class ShippingsService {
 	getById(Id:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/shippings/${Id}`,{ headers: headersToSend }).pipe(
 			map((data: any) => {
@@ -118,7 +108,7 @@ export class ShippingsService {
 	getByStatusId(Id:any): Observable<any> {
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token', this.token)
+			.set('x-access-token', localStorage.getItem('myToken')!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/shippings/status/${Id}`,{ headers: headersToSend }).pipe(
 			map((data: any) => {

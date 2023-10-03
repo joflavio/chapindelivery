@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { ToastController } from '@ionic/angular';
 import { CitiesService } from '../services/cities.service';
 import { ShippingsService } from '../services/shippings.service';
-import { ToastController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
+
 
 @Component({
   selector: 'app-tabs',
@@ -11,15 +13,17 @@ import { ToastController } from '@ionic/angular';
 export class TabsPage {
 
   constructor(
+
+	private toastCtrl: ToastController,
 	private citiesService:CitiesService,
 	private shippingsService:ShippingsService,
-	private toastCtrl: ToastController
+	private loadingController:LoadingController,
 	) {
-    this.loadLists();
   	}
 
-	ngOnInit(){
-	this.presentToast();	
+	async ngOnInit(){
+		this.presentToast();
+		//await this.loadLists();	
 	}
 
 	async presentToast() {
@@ -36,24 +40,9 @@ export class TabsPage {
 	}
 
 
-  	loadLists(){
-		this.citiesService.getAll().subscribe({
-			next: (res) => {
-				localStorage.setItem('cities', JSON.stringify(res));
-			},
-			error:  async (err) => {
-				console.log('cities error'+err);
-			}
-		});
-		this.shippingsService.getShippingStatuses().subscribe({
-			next: (res) => {
-				localStorage.setItem('shippingStatuses', JSON.stringify(res));
-			},
-			error:  async (err) => {
-				console.log('shippingstatuses error'+err);
-			}
-		});
-	}
+
+
+
 
 
 }

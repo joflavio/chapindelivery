@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { CitiesService } from 'src/app/services/cities.service';
+import { ShippingsService } from 'src/app/services/shippings.service';
 
 const TOKEN_KEY = 'my-token';
 
@@ -23,18 +25,40 @@ export class LoginPage implements OnInit {
 		private alertController: AlertController,
 		private router: Router,
 		private loadingController: LoadingController,
+		private citiesService:CitiesService,
+		private shippingsService:ShippingsService,
 	) {}
 
-	async ngOnInit() {
+	ngOnInit() {
 	}
 
 	async login() {
 		const loading = await this.loadingController.create();
 		await loading.present();
+
 		this.authService.login(this.credentials.value).subscribe({
 			next: async (res) => {
-				loading.dismiss();
-				this.router.navigateByUrl('/tabs', { replaceUrl: true });
+				this.citiesService.getAll().subscribe({
+					next: (res:any) => {
+						localStorage.setItem('cities', JSON.stringify(res));
+
+						this.shippingsService.getShippingStatuses().subscribe({
+							next: (res:any) => {
+								localStorage.setItem('shippingStatuses', JSON.stringify(res));
+
+								loading.dismiss();
+								this.router.navigateByUrl('/tabs', { replaceUrl: true });
+							},
+							error:  (err:any) => {
+								console.log('shippingstatuses error'+err);
+							}
+						});
+					},
+					error: (err:any) => {
+						loading.dismiss();
+						console.log('cities error'+err);
+					}
+				});		
 			},
 			error:  async (err) => {
 				loading.dismiss();
@@ -44,9 +68,40 @@ export class LoginPage implements OnInit {
 					buttons: ['OK']
 				});
 				(await alert3).present();
+				return;
 			},
-			complete: () => console.log('complete')
+			complete: async () => {
+				console.log('complete');
+			}
 		});
+
+
+
+
+		
+	}
+
+	loadLists(){
+		this.citiesService.getAll().subscribe({
+			next: (res:any) => {
+				localStorage.setItem('cities', JSON.stringify(res));
+			},
+			error: (err:any) => {
+				console.log('cities error'+err);
+			}
+		});
+		this.shippingsService.getShippingStatuses().subscribe({
+			next: (res:any) => {
+				localStorage.setItem('shippingStatuses', JSON.stringify(res));
+			},
+			error:  (err:any) => {
+				console.log('shippingstatuses error'+err);
+			}
+		});
+	}
+
+	goTabs(){
+		this.router.navigateByUrl('/tabs', { replaceUrl: true });
 	}
 
 	goSignin(){
