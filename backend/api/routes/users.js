@@ -6,48 +6,45 @@ const auth = require("../middleware/auth");
 
 /* GET users listing. */
 router.get('/:id', auth, async function(req, res, next) {
-  try{
-    const user = await models.User.findAll({
-        where: {
-            id: req.params.id
-        }
-    });
-if (user.length==0) {
-    return res.status(404).send("No user!");
-}
-return res.status(200).json(user);
-} catch (err)
-{
-    console.log(err);
-    res.status(500).send('Database error!');
-    return;
-}
-});
-
-router.post('/', auth, async function(req, res, next) {
-    var shipping; 
     try{
-        shipping = await models.Shippings.create({ 
-        requestdate: Date.now(), 
-        requestaddress: req.body.requestaddress,
-        requestcityid: req.body.requestcityid,  
-        requestuserid: req.body.requestuserid,
-        destinationaddress: req.body.destinationaddress,
-        destinationcityid: req.body.destinationcityid,
-        statusid: '1'
-    });
-    } catch (err)
-    {
+        const user = await models.User.findAll({
+            where: {
+                id: req.params.id
+            }
+        });
+        if (user.length==0) {
+            return res.status(404).send("No user!");
+        }
+        return res.status(200).json(user);
+    } catch (err) {
         console.log(err);
         res.status(500).send('Database error!');
         return;
     }
+});
 
-    if (shipping)
-        res.status(200).send(shipping);
-    else 
-        res.status(500).send('Shipping was not created!');
-    return;
+router.put('/', auth, async function(req, res, next) {
+    const user=req.body;
+    const users = await models.User.findAll({
+        where: {
+            id: user.id
+        }
+    });
+    if (users.length==0) 
+        return res.status(404).send("No user!");
+    
+    await models.User.update({
+        firstname: user.firstname,
+        lastname: user.lastname,
+        satimageid:user.satimageid,
+        policerecordimageid:user.policerecordimageid,
+        criminalrecordimageid:user.criminalrecordimageid
+    }, {
+        where: {
+            id: user.id
+            }
+    });
+    return res.status(200).send(user);
 });
 
 module.exports = router;

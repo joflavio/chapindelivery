@@ -127,7 +127,7 @@ router.put('/', auth, async function(req, res, next) {
     if (shippings.length==0) {
         return res.status(404).send("No shipping!");
     }
-
+    console.log(shipping);
     await models.Shippings.update({ 
         requestdate: (!shipping.requestdate)?Date.now():shipping.requestdate, 
         requestaddress: shipping.requestaddress,
@@ -157,7 +157,7 @@ router.put('/', auth, async function(req, res, next) {
     
         return res.status(200).send();
     } catch(err){
-        console.log(err);
+        //console.log(err);
         return res.status(500).send('Database error!');
     }
     
@@ -170,7 +170,7 @@ router.post('/', auth, upload.single('file'), async function(req, res, next) {
     const _new=JSON.parse(shipping);
 
     const fileName=`img-${ Date.now()}-${Math.round(Math.random() * 1E9)}.jpg`;
-    
+    console.log(shipping);
     await sharp(buffer)
     .jpeg({ mozjpeg: true, quality: 50 })
     .resize({ width: 720 })

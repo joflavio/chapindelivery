@@ -1,0 +1,22 @@
+ion-content {
+	--padding-top: 10%;
+	--padding-start: 10%;
+	--padding-end: 10%;
+}
+
+.input-group {
+	border: 1px solid black;
+	background: #fff;
+	border-radius: 10px;
+	overflow: hidden;
+	margin-bottom: 15px;
+}
+
+.avatar{
+    margin: auto;
+    margin-bottom: 30px;
+    //margin-top: 10%;
+	position: relative;
+    width: 150px;
+    height: 150px;
+ }

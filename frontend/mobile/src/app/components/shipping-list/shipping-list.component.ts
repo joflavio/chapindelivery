@@ -58,7 +58,7 @@ export class ShippingListComponent  implements OnInit {
 
     this.shippingsService.getByStatusId(1).subscribe({
     next: async (res) => {
-      console.log(res);
+      //console.log(res);
       this.shippings=res;
       
       this.shippings.forEach( async (e:any) => {
@@ -196,7 +196,7 @@ export class ShippingListComponent  implements OnInit {
 
     modal.present();
     const { data, role }=await modal.onWillDismiss();
-    console.log('shipping: '+role);
+    //console.log('shipping: '+role);
     this.getShippings();
    }
 

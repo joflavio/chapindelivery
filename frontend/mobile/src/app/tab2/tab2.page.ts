@@ -255,7 +255,6 @@ export class Tab2Page {
     }
 
     async receiveShipping(shipping:any){
-      
       const image = await this.launchCamera(this.buttonText(shipping));
       if (!image){
         return;
@@ -268,7 +267,10 @@ export class Tab2Page {
         shipping.statusid=3;
       else if (shipping.statusid==3)
         shipping.statusid=4;  
-      else return;
+      else if (shipping.statusid==4)
+      shipping.statusid=6;
+      else 
+        return;
 
       const photo:Photo = image;
       const response = await fetch(photo.webPath!);
@@ -280,11 +282,14 @@ export class Tab2Page {
             shipping.receivedimageid=res.id;
           } else if (shipping.statusid==4) {
             shipping.deliveredimageid=res.id;
+          } else if (shipping.statusid==6) {
+            shipping.billingdocumentimageid=res.id;
           }
         },
         complete: async ()=>{
           console.log(shipping);
           await this.updateShipping(shipping);
+          await this.getShippings();
           await loading.dismiss();
         }
       });
@@ -312,6 +317,11 @@ export class Tab2Page {
       var text=""
       if (shipping.statusid==2) text="Recibir envio";
       else if (shipping.statusid==3) text="Entregar envio";
+      else if (shipping.statusid==4) text="Cargar factura";
       return text;
+    }
+
+    showBotton(statusid:any){
+
     }
 }

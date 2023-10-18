@@ -1,0 +1,31 @@
+<ion-content>
+  <h1 style="text-align: center;">{{this.title}}</h1>
+	<div style="margin-top: 20px;">
+		<ion-avatar class="avatar">
+			<ion-img alt="" [src]="loadAvatar()" ></ion-img>
+		</ion-avatar>
+	</div>
+	<div class="input-group">
+		<ion-item>
+			<ion-input [(ngModel)]="this._user.email" type="email"  label="Correo electronico" labelPlacement="floating" [disabled]="true" ></ion-input>
+		</ion-item>
+		<ion-item>
+			<ion-input [(ngModel)]="this._user.firstname" type="text" label="Nombres" labelPlacement="floating" [disabled]="true"></ion-input>
+		</ion-item>
+		<ion-item>
+			<ion-input [(ngModel)]="this._user.lastname" type="text" label="Apellidos" labelPlacement="floating"  [disabled]="true"></ion-input>
+		</ion-item>
+		<ion-item *ngIf="this._user.satimageid">
+			<ion-label color="medium">Carnet SAT</ion-label> 
+			<ion-icon  (click)="showImage('Carnet SAT', this._user.satimageid)" name="image-outline"></ion-icon>
+		</ion-item>
+		<ion-item *ngIf="this._user.criminalrecordimageid">
+			<ion-label color="medium">Antecedentes Penales</ion-label>
+			<ion-icon  (click)="showImage('Antecedentes Penales', this._user.criminalrecordimageid)" name="image-outline"></ion-icon>
+		</ion-item>
+		<ion-item *ngIf="this._user.policerecordimageid">
+			<ion-label color="medium">Antecedentes Policiacos</ion-label>
+			<ion-icon  (click)="showImage('Antecedentes Policiacos', this._user.policerecordimageid)" name="image-outline"></ion-icon>
+		</ion-item>
+	</div>
+</ion-content>

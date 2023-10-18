@@ -6,6 +6,9 @@ import { FilesService } from '../services/files.service';
 import { UsersService } from '../services/users.service';
 import { CameraComponent } from '../components/camera/camera.component';
 import { Photo } from '@capacitor/camera';
+import { ImageViewerComponent } from '../components/image-viewer/image-viewer.component';
+
+
 
 @Component({
   selector: 'app-tab3',
@@ -81,7 +84,7 @@ export class Tab3Page {
 		this.router.navigateByUrl('/', { replaceUrl: true });
 	}
 
-  async launchCamera(){
+  async launchCamera():Promise<any>{
     const modal = await this.modalCtrl.create({
       component: CameraComponent,
       componentProps:{
@@ -90,8 +93,12 @@ export class Tab3Page {
       leaveAnimation: this.leaveAnimation,
     });
     modal.present();
+    //const {data, role} = await modal.onWillDismiss();
+    return await modal.onWillDismiss();
+  }
 
-    const {data, role} = await modal.onWillDismiss();
+  async launchProfileCamera(){
+    const {data, role} = await this.launchCamera();
     if (role==='confirm'){
       const photo:Photo = data.image;
       const response = await fetch(photo.webPath!);
@@ -117,6 +124,38 @@ export class Tab3Page {
     }
   }
 
+  async savePhoto(fileType:any):Promise<any>{
+    const {data, role} = await this.launchCamera();
+    if (role==='confirm'){
+      const loadingImages = await this.loadingController.create();
+      await loadingImages.present();
+
+      const photo:Photo = data.image;
+      const response = await fetch(photo.webPath!);
+      const blob = await response.blob();
+      //const fileName=`img-${ Date.now()}-${Math.round(Math.random() * 1E9)}.jpg`;
+      this.filesService.uploadImage(blob, fileType).subscribe({
+        next: (image) => {
+          if (fileType==2) 
+            this._user.satimageid=image.id;
+          else if (fileType==3) this._user.policerecordimageid=image.id;
+          else this._user.criminalrecordimageid=image.id;
+          this.usersService.update(this._user).subscribe({
+            next: async (res) => { 
+              await loadingImages.dismiss();
+            },
+            error: async (err) => {
+              await loadingImages.dismiss();
+            }
+          });
+        },
+        error: async (err) =>{
+          await loadingImages.dismiss();
+        }
+      });
+      
+    }
+  }
 
   enterAnimation = (baseEl: HTMLElement) => {
     const root = baseEl.shadowRoot;
@@ -145,4 +184,30 @@ export class Tab3Page {
   leaveAnimation = (baseEl: HTMLElement) => {
     return this.enterAnimation(baseEl).direction('reverse');
   };
+  
+  async showImage(title:string,imageid:string){
+    const loadingImages = await this.loadingController.create();
+    await loadingImages.present();
+
+    this.filesService.getImage(imageid).subscribe({
+      next: async (res) => {
+        const base64Data = await this.convertBlobToBase64(res) as string;
+        await loadingImages.dismiss();
+        const modal = await this.modalCtrl.create({
+          component: ImageViewerComponent,
+          componentProps: {
+            title: title,
+            photo: base64Data
+          },
+          enterAnimation: this.enterAnimation,
+          leaveAnimation: this.leaveAnimation,
+        });
+        await modal.present();
+      },
+      error: async () =>{
+        await loadingImages.dismiss();
+      }
+    });
+
+  }
 }

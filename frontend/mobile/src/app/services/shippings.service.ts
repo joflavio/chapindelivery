@@ -14,9 +14,10 @@ export class ShippingsService {
 	 
 	getShippingStatuses(): Observable<any>
 	{
+		const token=localStorage.getItem('myToken');
 		let headersToSend = new HttpHeaders();
 		headersToSend = headersToSend
-			.set('x-access-token',localStorage.getItem('myToken')!)
+			.set('x-access-token',token!)
 			.set('Accept','application/json');
 		return this.http.get(`${environment.baseUrl}/shippingstatus/all`, { headers: headersToSend }).pipe(
 			map((data: any) => {

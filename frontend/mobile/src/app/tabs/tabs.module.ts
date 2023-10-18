@@ -10,6 +10,7 @@ import { CameraComponent } from '../components/camera/camera.component';
 import { ShippingListComponent } from '../components/shipping-list/shipping-list.component';
 import { ShippingCancelComponent } from '../components/shipping-cancel/shipping-cancel.component';
 import { ImageViewerComponent } from '../components/image-viewer/image-viewer.component';
+import { ProfileViewerComponent } from '../components/profile-viewer/profile-viewer.component';
 
 @NgModule({
   imports: [
@@ -26,6 +27,8 @@ import { ImageViewerComponent } from '../components/image-viewer/image-viewer.co
     ShippingNewComponent,  
     ShippingListComponent, 
     ShippingCancelComponent,
-    ImageViewerComponent]
+    ImageViewerComponent,
+    ProfileViewerComponent
+  ]
 })
 export class TabsPageModule {}

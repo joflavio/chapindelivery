@@ -29,8 +29,8 @@ export class LoginPage implements OnInit {
 		private shippingsService:ShippingsService,
 	) {}
 
-	ngOnInit() {
-	}
+	ngOnInit() {}
+
 
 	async login() {
 		const loading = await this.loadingController.create();
@@ -39,26 +39,31 @@ export class LoginPage implements OnInit {
 		this.authService.login(this.credentials.value).subscribe({
 			next: async (res) => {
 				this.citiesService.getAll().subscribe({
-					next: (res:any) => {
-						localStorage.setItem('cities', JSON.stringify(res));
+					next: async (cities:any) => {
+						const json=JSON.stringify(cities);
+						//console.log(json);
+						localStorage.setItem('cities', json);
 
 						this.shippingsService.getShippingStatuses().subscribe({
-							next: (res:any) => {
-								localStorage.setItem('shippingStatuses', JSON.stringify(res));
-
-								loading.dismiss();
+							next: async (status:any) => {
+								localStorage.setItem('shippingStatuses', JSON.stringify(status));
+								await loading.dismiss();
 								this.router.navigateByUrl('/tabs', { replaceUrl: true });
 							},
-							error:  (err:any) => {
+							error: async (err:any) => {
 								console.log('shippingstatuses error'+err);
+								await loading.dismiss();
+								throw err;
 							}
 						});
+
+						//await loading.dismiss();
 					},
-					error: (err:any) => {
-						loading.dismiss();
+					error: async (err:any) => {
 						console.log('cities error'+err);
+						throw err;
 					}
-				});		
+				});
 			},
 			error:  async (err) => {
 				loading.dismiss();
@@ -69,16 +74,8 @@ export class LoginPage implements OnInit {
 				});
 				(await alert3).present();
 				return;
-			},
-			complete: async () => {
-				console.log('complete');
 			}
 		});
-
-
-
-
-		
 	}
 
 	loadLists(){

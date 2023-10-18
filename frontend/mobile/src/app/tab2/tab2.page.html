@@ -30,10 +30,11 @@
 							[class.statusOnDelivery]="status(shipping.statusid,3)" 
 							[class.statusDelivered]="status(shipping.statusid,4)" 
 							[class.statusCancel]="status(shipping.statusid,5)" 
+							[class.statusCompleted]="status(shipping.statusid,6)" 
 							>{{displayStatus(shipping.statusid)}}</b></p>
 					</div>
 					<div style="display: flex; justify-content: right; padding-top: 10px;">
-						<ion-button (click)="receiveShipping(shipping)" *ngIf="shipping.statusid!=4">{{buttonText(shipping)}}</ion-button>
+						<ion-button (click)="receiveShipping(shipping)" *ngIf="shipping.statusid!=6">{{buttonText(shipping)}}</ion-button>
 					</div>
 				</ion-card-content>
 			</ion-card>

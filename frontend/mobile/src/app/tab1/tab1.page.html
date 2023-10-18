@@ -22,13 +22,14 @@
 				<ion-card-content >
 					<p style="font-weight: bold; font-size: 13px;">Envio: #{{shipping.id}}</p>
 					<p>Origen: {{shipping.requestaddress}}, {{displayCity(shipping.requestcityid)}}</p>
-					<p>Destino: {{shipping.requestaddress}}, {{displayCity(shipping.destinationcityid)}}</p>
+					<p>Destino: {{shipping.destinationaddress}}, {{displayCity(shipping.destinationcityid)}}</p>
 					<p>Estatus: <b 
-						[class.statusCreated]="statusCreated(shipping.statusid)" 
-						[class.statusAccepted]="statusAccepted(shipping.statusid)" 
-						[class.statusOnDelivery]="statusOnDelivery(shipping.statusid)" 
-						[class.statusDelivered]="statusDelivered(shipping.statusid)" 
-						[class.statusCancel]="statusCancel(shipping.statusid)" 
+						[class.statusCreated]="status(shipping.statusid,1)" 
+						[class.statusAccepted]="status(shipping.statusid,2)" 
+						[class.statusOnDelivery]="status(shipping.statusid,3)" 
+						[class.statusDelivered]="status(shipping.statusid,4)" 
+						[class.statusCancel]="status(shipping.statusid,5)" 
+						[class.statusCompleted]="status(shipping.statusid,6)" 
 						>{{displayStatus(shipping.statusid)}}</b></p>
 				</ion-card-content>
 			</ion-card>

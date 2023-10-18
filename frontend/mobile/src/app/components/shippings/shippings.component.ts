@@ -6,13 +6,7 @@ import { UsersService } from 'src/app/services/users.service';
 import { Router } from '@angular/router';
 import { ImageViewerComponent } from '../image-viewer/image-viewer.component';
 import { FilesService } from 'src/app/services/files.service';
-
-
-class Input{
-  value:any;
-  //disable:boolean=true;
-  //show:boolean=true;
-}
+import { ProfileViewerComponent } from '../profile-viewer/profile-viewer.component';
 
 @Component({
   selector: 'app-shippings',
@@ -22,10 +16,13 @@ class Input{
 export class ShippingsComponent  implements OnInit {
   shipping:any;
   type:any;
+  requestAvatar:any;
+  deliveryAvatar:any;
 
   _cities:any;
   _user:any;
   _shippingStatuses:any;
+
 
   _id:any;
   _requestUser:any;
@@ -43,6 +40,7 @@ export class ShippingsComponent  implements OnInit {
   _cancel:any;
   _cancelcomments2:any;
   _cancelcomments:any;
+  _billingdocumentimageid:any;
   _status:any;
 
   constructor(
@@ -56,26 +54,14 @@ export class ShippingsComponent  implements OnInit {
     private animationCtrl:AnimationController,
     private filesService:FilesService,
   ) {
-    var _user:string|null = localStorage.getItem('myUser');
-    var _cities:string|null = localStorage.getItem('cities');
-    var _shippingStatuses:string|null = localStorage.getItem('shippingStatuses');
-
     try{
-      this._user=JSON.parse(_user?_user:'');
-      this._cities = new Map(JSON.parse(_cities?_cities:'').map((element: { id: any; }) => [element.id, element]));
-      this._shippingStatuses = new Map(JSON.parse(_shippingStatuses?_shippingStatuses:'').map((element: { id: any; }) => [element.id, element]));
+      this._user=JSON.parse(localStorage.getItem('myUser')!);
+      this._cities = new Map(JSON.parse(localStorage.getItem('cities')!).map((element: { id: any; }) => [element.id, element]));
+      this._shippingStatuses = new Map(JSON.parse(localStorage.getItem('shippingStatuses')!).map((element: { id: any; }) => [element.id, element]));
     }
     catch {
       this.logout();
     }
-  }
-
-  dateToString(date:any){
-    return (new Date(date)).toLocaleString('en-GB');
-  }
-
-  private async getUserName(userId:any): Promise<any>{
-
   }
 
   async ngOnInit() {
@@ -95,43 +81,76 @@ export class ShippingsComponent  implements OnInit {
     if (this.shipping.cancelcomments) this._cancelcomments=this.shipping.cancelcomments;
     if (this.shipping.acceptancedate) this._acceptanceDate=this.dateToString(this.shipping.acceptancedate);
     if (this.shipping.delivereddate) this._deliveredDate=this.dateToString(this.shipping.delivereddate);
+    if (this.shipping.billingdocumentimageid) this._billingdocumentimageid=this.shipping.billingdocumentimageid;
+
 
     if (this.shipping.requestuserid){ 
       const loading = await this.loadingController.create();
       await loading.present();
   
       this.usersService.get(this.shipping.requestuserid).subscribe({
-        next: (res) => {
-          var email: any;
-          const users=res;
-          if (users){
-            email=users[0].email;
+        next: (users) => {
+          if (users && users.length>0){
+            this._requestUser=users[0];
           }
-          this._requestUser=email;
+          const imageid=users[0].userimageid;
+          this.filesService.getImage(imageid).subscribe({
+            next: async (res) => {
+              const base64Data = await this.convertBlobToBase64(res) as string;
+              this.requestAvatar=base64Data;
+              await loading.dismiss();
+            },
+            error: async () =>{
+              await loading.dismiss();
+            }
+          });
         },
         complete: async () => {
           await loading.dismiss();
         }
       });
     }
+
     if (this.shipping.deliveryuserid){
       const loading = await this.loadingController.create();
       await loading.present();
-  
       this.usersService.get(this.shipping.deliveryuserid).subscribe({
-        next: (res) => {
+        next: (users) => {
           var email: any;
-          const users=res;
-          if (users){
-            email=users[0].email;
+          //const users=res;
+          if (users && users.length>0){
+            //email=users[0].email;
+            this._deliveryUser=users[0];
+            const imageid=users[0].userimageid;
+            this.filesService.getImage(imageid).subscribe({
+              next: async (res) => {
+                const base64Data = await this.convertBlobToBase64(res) as string;
+                this.deliveryAvatar=base64Data;
+                await loading.dismiss();
+              },
+              error: async () =>{
+                await loading.dismiss();
+              }
+            });
           }
-          this._deliveryUser=email;
         },
         complete: async () => {
           await loading.dismiss();
         }
       });
     }
+  }
+
+  dateToString(date:any){
+    return (new Date(date)).toLocaleString('en-GB');
+  }
+
+  getRequestAvatar(){
+    return (this.requestAvatar)?this.requestAvatar:"assets/avatar.svg";
+  }
+
+  getDeliveryAvatar(){
+    return (this.deliveryAvatar)?this.deliveryAvatar:"assets/avatar.svg";
   }
 
   status(statusId:any){
@@ -167,21 +186,23 @@ export class ShippingsComponent  implements OnInit {
   });
 
   async openImage(statusid:any){
+    /*
     if ((this.shipping.statusid==3 && !this.shipping.receivedimageid)
       || (this.shipping.statusid==4 && !this.shipping.deliveredimageid))
       return ;
-
+    */
     const loadingImages = await this.loadingController.create();
     await loadingImages.present();
-    
-    const title=(this.shipping.statusid==3)?"Recepcion":"Entrega";
+    var title=this._shippingStatuses.get(parseInt(this.shipping.statusid)).name
     
     var imageid;
     if (statusid==3)
       imageid=this.shipping.receivedimageid;
     else if (statusid==4)
       imageid=this.shipping.deliveredimageid;
-    console.log(imageid);
+    else if (statusid==6)
+      imageid=this.shipping.billingdocumentimageid;
+    //console.log(imageid);
     this.filesService.getImage(imageid).subscribe({
       next: async (res) => {
         const base64Data = await this.convertBlobToBase64(res) as string;
@@ -203,7 +224,6 @@ export class ShippingsComponent  implements OnInit {
     });
 
   }
-
   
   enterAnimation = (baseEl: HTMLElement) => {
     const root = baseEl.shadowRoot;
@@ -232,4 +252,18 @@ export class ShippingsComponent  implements OnInit {
   leaveAnimation = (baseEl: HTMLElement) => {
     return this.enterAnimation(baseEl).direction('reverse');
   };
+
+  async showUser(title:any, user:any){
+    const modal = await this.modalCtrl.create({
+      component: ProfileViewerComponent,
+      componentProps: {
+        title: title,
+        _user:user, 
+        //photo: base64Data
+      },
+      enterAnimation: this.enterAnimation,
+      leaveAnimation: this.leaveAnimation,
+    });
+    await modal.present();
+  }
 }

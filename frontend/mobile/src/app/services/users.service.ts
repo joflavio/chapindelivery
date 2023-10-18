@@ -31,4 +31,17 @@ export class UsersService {
 			})
 		);
 	}
+
+	update(user:any): Observable<any> {
+		let headersToSend = new HttpHeaders();
+		headersToSend = headersToSend
+			.set('x-access-token', localStorage.getItem('myToken')!)
+			.set('Accept','application/json');
+		//console.log(user);
+		return this.http.put(`${environment.baseUrl}/users`, user, { headers: headersToSend }).pipe(
+			map((data: any) => {
+				return data;
+			})
+		);
+	}
 }

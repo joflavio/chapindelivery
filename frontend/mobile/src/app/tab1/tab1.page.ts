@@ -127,24 +127,8 @@ export class Tab1Page {
       event.target.complete();
     }
 
-    statusCancel(statusid:any){
-      return statusid==5;
-    }
-
-    statusDelivered(statusid:any){
-      return statusid==4;
-    }
-
-    statusOnDelivery(statusid:any){
-      return statusid==3;
-    }
-
-    statusAccepted(statusid:any){
-      return statusid==2;
-    }
-
-    statusCreated(statusid:any){
-      return statusid==1;
+    status(userStatusId:any, statusId:any){
+      return userStatusId==statusId;
     }
 
     displayStatus(statusid:any){
@@ -262,8 +246,6 @@ export class Tab1Page {
       const {data, role} = await modal.onWillDismiss();
     }
   }
-
-
 
   async openNew() {
     const modal = await this.modalCtrl.create({
